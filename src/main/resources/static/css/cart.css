@@ -1,0 +1,176 @@
+.cart-table-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+}
+
+.cart-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    max-width: 1000px;
+    background: #fff;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.cart-table th,
+.cart-table td {
+    padding: 16px 20px;
+    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: middle;
+}
+
+.cart-table form {
+    display: contents;
+    margin: 0;
+    padding: 0;
+}
+
+.cart-table thead th {
+    background: #f3f4f6;
+    color: #2563eb;
+    font-weight: 600;
+    font-size: 1.1em;
+}
+
+.cart-table tr:last-child td {
+    border-bottom: none;
+}
+
+.cart-book-main {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.cart-book-icon {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.cart-book-title {
+    font-weight: 500;
+    color: #1e293b;
+}
+
+.cart-book-author,
+.cart-book-year,
+.cart-book-quantity {
+    color: #64748b;
+}
+
+.cart-book-quantity {
+    width: 60px;
+    height: 25px;
+    padding: 4px 6px;
+    font-size: 1em;
+    border: 1px solid #e5e7eb;
+    text-align: center;
+    background: var(--bg-color);
+    color: var(--button-bg);
+    transition: border-color 0.2s;
+    margin-right: 5px;
+}
+
+.cart-book-quantity:focus {
+    border-color: var(--button-bg);
+    outline: none;
+    background: var(--bg-color);
+}
+
+.cart-book-price {
+    color: #2563eb;
+    font-weight: 600;
+}
+
+.cart-table th:first-child,
+.cart-table td:first-child {
+    width: 36px;
+    text-align: center;
+}
+
+.cart-table input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #2563eb;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.cart-table input[type="checkbox"]:hover {
+    box-shadow: 0 0 4px rgba(37, 99, 235, 0.5);
+    transform: scale(1.1);
+}
+
+.cart-table input[type="checkbox"]:checked {
+    background-color: #2563eb;
+    border-color: #2563eb;
+}
+
+.checkout-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.checkout-button {
+    background-color: var(--button-bg, #2563eb);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.4rem;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s ease;
+}
+
+.checkout-button:hover {
+    background-color: var(--button-hover, #1d4ed8);
+}
+
+.cart-book-actions {
+    white-space: nowrap;
+}
+
+.cart-book-actions input,
+.cart-book-actions button {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 4px 0 0;
+}
+
+
+@media (prefers-color-scheme: dark) {
+
+    .cart-table {
+        background: #181a1b;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.32);
+    }
+    .cart-table thead th {
+        background: #23272a;
+    }
+    .cart-table th,
+    .cart-table td {
+        color: #e5e7eb;
+        border-bottom: 1px solid #23272a;
+    }
+    .cart-book-title {
+        color: #e5e7eb;
+    }
+    .cart-book-author,
+    .cart-book-year,
+    .cart-book-quantity {
+        color: #b0b8c1;
+    }
+}

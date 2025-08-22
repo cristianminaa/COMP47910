@@ -1,0 +1,29 @@
+.confirmation-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: var(--bg-color);
+    padding: 2rem;
+}
+
+.confirmation-box {
+    background-color: var(--form-bg);
+    border-radius: 12px;
+    padding: 2rem 3rem;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+}
+
+.confirmation-box h1 {
+    font-size: 2rem;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+.confirmation-box p {
+    font-size: 1rem;
+    color: var(--text-color);
+}

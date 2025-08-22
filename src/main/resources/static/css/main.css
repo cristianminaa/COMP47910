@@ -1,0 +1,174 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.navbar {
+    background-color: var(--form-bg);
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.navbar form {
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+    border-radius: 0;
+    background: none;
+}
+
+.navbar-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.navbar-logo {
+    font-size: 1.5rem;
+    color: var(--button-bg);
+    font-weight: bold;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.navbar-logo:hover {
+    color: var(--text-color);
+}
+
+.author-books-titles {
+    font-size: 3rem;
+    color: var(--text-color);
+    font-weight: bold;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.author-books-titles:hover {
+    color: var(--button-bg);
+}
+
+.navbar-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.navbar-actions form {
+    margin: 0;
+}
+
+.navbar-button {
+    background-color: var(--form-bg);
+    color: var(--button-bg);
+    border: none;
+    padding: 0.4rem 1.2rem;
+    font-size: 0.95rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    height: 2.5rem;
+}
+
+.navbar-button:hover {
+    background-color: var(--button-hover);
+    color: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-color: #121212;
+        --text-color: #f0f0f0;
+        --link-color: #74b9ff;
+        --link-hover: #55efc4;
+        --form-bg: #1e1e1e;
+        --input-border: #444;
+        --button-bg: #2563eb;
+        --button-hover: #1f618d;
+    }
+}
+
+
+.page-footer {
+    background-color: var(--form-bg);
+    color: var(--text-color);
+    padding: 1.5rem 2rem;
+    margin-top: auto;
+    box-shadow: 0 -1px 6px rgba(0, 0, 0, 0.05);
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.footer-text {
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+.footer-links {
+    display: flex;
+    gap: 1.25rem;
+}
+
+.footer-links a {
+    font-size: 0.9rem;
+    color: var(--link-color);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+    color: black;
+}
+
+.books-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    width: 100%;
+}
+.books-header-row > div,
+.books-header-row > h1 {
+    text-align: center;
+}
+
+.books-select {
+    width: 100%;
+    background-color: var(--form-bg, #222);
+    color: var(--text-color, #fff);
+    border: 1px solid var(--input-border, #444);
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 1rem;
+    transition: background 0.2s, color 0.2s, border 0.2s;
+}
+.books-select:focus {
+    outline: none;
+    border-color: var(--button-hover, #888);
+    background-color: var(--form-bg, #1a1a1a);
+}
+

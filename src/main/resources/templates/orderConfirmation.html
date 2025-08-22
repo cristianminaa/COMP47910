@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Order Confirmation</title>
+  <link rel="icon" type="image/png" th:href="@{/icons8-library-96.png}" />
+  <link rel="stylesheet" th:href="@{/css/main.css}" />
+  <link rel="stylesheet" th:href="@{/css/index.css}" />
+  <link rel="stylesheet" th:href="@{/css/orderConfirmation.css}" />
+
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-container">
+    <a class="navbar-logo" th:href="@{/books}">Bookshop</a>
+    <div class="navbar-actions">
+      <form th:if="${session.user != null and session.user.role.name() != 'ADMIN'}" th:action="@{/cart}" method="get">
+        <button class="navbar-button" type="submit">Cart</button>
+      </form>
+      <form th:if="${session.user != null}" th:action="@{/logout}" method="get">
+        <button class="navbar-button" type="submit">Log out</button>
+      </form>
+    </div>
+  </div>
+</nav>
+
+<div class="confirmation-wrapper">
+  <div class="confirmation-box">
+    <h1>Success!</h1>
+    <p>
+      Order with ID <strong th:text="'#' + ${orderId}">#ABC123</strong> was placed.<br>
+      Redirecting back to the store...
+    </p>
+  </div>
+</div>
+
+<footer class="page-footer">
+  <div class="footer-container">
+    <p class="footer-text">© 2025 Bookshop by Cristian Mina. All rights reserved by UCD.</p>
+    <div class="footer-links">
+      <a href="https://www.ucd.ie">UCD</a>
+      <a href="mailto:cristian-daniel.mina@ucdconnect.ie">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+    setTimeout(() => {
+        window.location.href = '/books';
+    }, 3000);
+</script>
+</body>
+</html>

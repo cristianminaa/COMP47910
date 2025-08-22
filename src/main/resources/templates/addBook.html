@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Books Store Application</title>
+  <link rel="icon" type="image/png" th:href="@{/icons8-library-96.png}" />
+  <link rel="stylesheet" th:href="@{/css/main.css}" />
+  <link rel="stylesheet" th:href="@{/css/addedit.css}" />
+</head>
+
+<body>
+<nav class="navbar">
+  <div class="navbar-container">
+    <a class="navbar-logo" th:href="@{/books}">Bookshop</a>
+    <div class="navbar-actions">
+      <div th:if="${session.user != null and session.user.role.name() == 'ADMIN'}">
+        <form th:action="@{/new}" method="get">
+          <button class="navbar-button" type="submit">Add Book</button>
+        </form>
+      </div>
+      <div th:if="${session.user != null and session.user.role.name() == 'ADMIN'}">
+        <form th:action="@{/addAuthor}" method="get">
+          <button class="navbar-button" type="submit">Add Author</button>
+        </form>
+      </div>
+      <form th:if="${session.user != null and session.user.role.name() != 'ADMIN'}" th:action="@{/cart}" method="get">
+        <button class="navbar-button" type="submit">Cart</button>
+      </form>
+      <form th:if="${session.user != null}" th:action="@{/logout}" method="get">
+        <button class="navbar-button" type="submit">Log out</button>
+      </form>
+    </div>
+  </div>
+</nav>
+
+<h1>Add Book</h1>
+
+<div class="center">
+  <form th:action="@{/books}"
+        method="post"
+        th:object="${book}">
+    <table>
+
+      <tr>
+        <th>Title:</th>
+        <td>
+          <input type="text" th:field="*{title}" size="45"/>
+        </td>
+      </tr>
+
+      <tr th:unless="${!#lists.isEmpty(listAuthors)}">
+        <td colspan="2"> You will be able to add authors once you create some.</td>
+      </tr>
+      <tr th:if="${listAuthors != null && !#lists.isEmpty(listAuthors)}">
+        <th>Authors:</th>
+        <td>
+          <select th:field="*{authors}" multiple size="6" class="books-select">
+            <option th:each="author : ${listAuthors}"
+                    th:value="${author.id}"
+                    th:text="${author.getFullName()}"></option>
+          </select>
+        </td>
+        <small>Hold CTRL (CMD on macOS) to select multiple authors.</small>
+      </tr>
+
+      <tr>
+        <th>Year:</th>
+        <td>
+          <input type="number" th:field="*{year}" size="45"/>
+        </td>
+      </tr>
+
+      <tr>
+        <th>Price:</th>
+        <td>
+          <input type="number" step="0.01" min="1" value="1" name="price" size="45"/>
+        </td>
+      </tr>
+
+      <tr>
+        <th>Number of Copies:</th>
+        <td>
+          <input type="number" th:field="*{numberOfCopies}" size="45"/>
+        </td>
+      </tr>
+
+      <tr>
+        <td colspan="2" style="text-align: center;">
+          <button type="submit">Save</button>
+        </td>
+      </tr>
+    </table>
+  </form>
+</div>
+
+<footer class="page-footer">
+  <div class="footer-container">
+    <p class="footer-text">© 2025 Bookshop by Cristian Mina. All rights reserved by UCD.</p>
+    <div class="footer-links">
+      <a href="https://www.ucd.ie">UCD</a>
+      <a href="mailto:cristian-daniel.mina@ucdconnect.ie">Contact</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+
+</html>

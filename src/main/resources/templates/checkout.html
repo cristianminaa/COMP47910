@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Books Store Checkout</title>
+  <link rel="icon" type="image/png" th:href="@{/icons8-library-96.png}" />
+  <link rel="stylesheet" th:href="@{/css/main.css}" />
+  <link rel="stylesheet" th:href="@{/css/index.css}" />
+  <link rel="stylesheet" th:href="@{/css/checkout.css}" />
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-container">
+    <a class="navbar-logo" th:href="@{/books}">Bookshop</a>
+    <div class="navbar-actions">
+      <form th:if="${session.user != null and session.user.role.name() != 'ADMIN'}" th:action="@{/cart}" method="get">
+        <button class="navbar-button" type="submit">Cart</button>
+      </form>
+      <form th:if="${session.user != null}" th:action="@{/logout}" method="get">
+        <button class="navbar-button" type="submit">Log out</button>
+      </form>
+    </div>
+  </div>
+</nav>
+
+<div class="checkout-wrapper">
+  <form class="checkout-form" th:action="@{/checkout}" method="post">
+    <h2>Checkout</h2>
+
+    <div class="form-section">
+      <h3 style="text-align: center">Billing Information</h3>
+
+      <div class="form-group">
+        <label>Name</label>
+        <p class="form-value" th:text="${user.getName()}">John</p>
+      </div>
+
+      <div class="form-group">
+        <label>Surname</label>
+        <p class="form-value" th:text="${user.getSurname()}">Doe</p>
+      </div>
+
+      <div class="form-group">
+        <label>Email Address</label>
+        <p class="form-value" th:text="${user.getEmailAddress()}">cristian@ucd.ie</p>
+      </div>
+
+      <div class="form-group">
+        <label>Address</label>
+        <p class="form-value" th:text="${user.getAddress()}">123 Main St</p>
+      </div>
+
+      <div class="form-group">
+        <label>Date of Birth</label>
+        <p class="form-value" th:text="${user.getDateOfBirth()}">01.01.2001</p>
+      </div>
+
+      <div class="form-group">
+        <label>Phone Number</label>
+        <p class="form-value" th:text="${user.getPhoneNumber()}">000-0000000</p>
+      </div>
+
+      <div class="form-group">
+        <label>Card Number</label>
+        <input type="number" class="form-value" name="cardNumber" minlength="16" maxlength="16" pattern="\d{16,19}" placeholder="Card Number" required>
+      </div>
+
+      <div class="form-group">
+        <label>Card Owner</label>
+        <input type="text" class="form-value" name="cardOwner" maxlength="50" pattern="[A-Za-z\s]+" placeholder="Card Owner" required>
+      </div>
+
+      <div class="form-group">
+        <label>Expiration Date</label>
+        <input type="text" class="form-value" name="expirationDate" maxlength="5" pattern="(0[1-9]|1[0-2])\/\d{2}" placeholder="MM/YY" required>
+      </div>
+
+      <div class="form-group">
+        <label>CVV</label>
+        <input type="text" class="form-value" name="cvv" maxlength="4" pattern="\d{3,4}" placeholder="CVV" required>
+      </div>
+    </div>
+
+
+    <div class="order-summary">
+      <h3 style="text-align: center">Order Summary</h3>
+
+      <div class="summary-table-container">
+        <table class="summary-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Quantity</th>
+              <th>Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="book : ${booksInCart}">
+              <td th:text="${book.key.title}"></td>
+              <td th:text="${book.value}"></td>
+              <td th:text="'$' + (${book.key.price == book.key.price.intValue()} ? ${book.key.price.intValue()} : ${#numbers.formatDecimal(book.key.price, 1, 2)})"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="summary-total">
+        <strong>Total:</strong>
+        <strong th:text="'$' + (${totalPrice == totalPrice.intValue()} ? ${totalPrice.intValue()} : ${#numbers.formatDecimal(totalPrice, 1, 2)})"></strong>
+      </div>
+
+      <button type="submit" style="margin-top: 15px;">Place Order</button>
+    </div>
+  </form>
+</div>
+
+<footer class="page-footer">
+  <div class="footer-container">
+    <p class="footer-text">© 2025 Bookshop by Cristian Mina. All rights reserved by UCD.</p>
+    <div class="footer-links">
+      <a href="https://www.ucd.ie">UCD</a>
+      <a href="mailto:cristian-daniel.mina@ucdconnect.ie">Contact</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
