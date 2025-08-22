@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Books Store Application</title>
-  <link rel="icon" type="image/png" th:href="@{/icons8-library-96.png}" />
-  <link rel="stylesheet" th:href="@{/css/main.css}" />
-  <link rel="stylesheet" th:href="@{/css/books.css}" />
+  <link rel="icon" type="image/png" th:href="@{/icons8-library-96.png}"/>
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+  <link rel="stylesheet" th:href="@{/css/books.css}"/>
 </head>
 <body>
 
@@ -13,23 +13,23 @@
   <div class="navbar-container">
     <a class="navbar-logo" th:href="@{/books}">Bookshop</a>
     <div class="navbar-actions">
-      <div th:if="${session.user != null and session.user.role.name() == 'ADMIN'}">
+      <div th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
         <form th:action="@{/new}" method="get">
           <button class="navbar-button" type="submit">Add Book</button>
         </form>
       </div>
-      <div th:if="${session.user != null and session.user.role.name() == 'ADMIN'}">
+      <div th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
         <form th:action="@{/addAuthor}" method="get">
           <button class="navbar-button" type="submit">Add Author</button>
         </form>
       </div>
-      <form th:if="${session.user != null && session.user.role.name() != 'ADMIN'}" th:action="@{/cart}" method="get">
+      <form th:if="${#authorization.expression('hasRole(''USER'')')}" th:action="@{/cart}" method="get">
         <button class="navbar-button" type="submit">Cart</button>
       </form>
-      <form th:if="${session.user != null}" th:action="@{/logout}" method="get">
+      <form th:if="${#authorization.expression('isAuthenticated()')}" th:action="@{/logout}" method="get">
         <button class="navbar-button" type="submit">Log out</button>
       </form>
-      <form th:unless="${session.user != null}" th:action="@{/}" method="get">
+      <form th:unless="${#authorization.expression('isAuthenticated()')}" th:action="@{/}" method="get">
         <button class="navbar-button" type="submit">Log in</button>
       </form>
     </div>
@@ -53,7 +53,8 @@
 <div class="books-grid">
   <div class="book-card" th:each="book : ${listBooks}">
     <div class="book-icon">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 80" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 80" fill="none" stroke="#2563eb" stroke-width="2.5"
+           stroke-linecap="round" stroke-linejoin="round">
         <!-- Left Page -->
         <path d="M8 10 Q24 4 32 20 V68 Q24 52 8 58 Z" fill="none"/>
         <!-- Right Page -->
@@ -73,14 +74,23 @@
         </div>
       </div>
       <p th:text="'Year: ' + ${book.year}">Year</p>
-      <p th:text="'Price: $' + (${book.price == book.price.intValue()} ? ${book.price.intValue()} : ${#numbers.formatDecimal(book.price, 1, 2)})">$19.99</p>
+      <p th:text="'Price: $' + (${book.price == book.price.intValue()} ? ${book.price.intValue()} : ${#numbers.formatDecimal(book.price, 1, 2)})">
+        $19.99</p>
 
       <div class="book-actions">
         <p th:unless="${book.numberOfCopies > 0}" class="no-stock">NO STOCK</p>
-        <input th:if="${book.numberOfCopies > 0 && session.user != null && session.user.role.name() == 'ADMIN'}" type="number" name="quantity" th:value="${book.numberOfCopies}" style="width: 35px;" disabled />
-        <form th:if="${book.numberOfCopies > 0 && session.user != null && session.user.role.name() != 'ADMIN'}" th:action="@{/cart/{id}(id=${book.id})}" method="post">
-          <input type="hidden" name="bookId" th:value="${book.id}" />
-          <input type="number" name="quantity" min="1" th:max="${book.numberOfCopies}" value="1" style="width: 35px;" />
+        <label>
+          <input th:if="${book.numberOfCopies > 0 && #authorization.expression('hasRole(''ADMIN'')')}"
+                 type="number" name="quantity" th:value="${book.numberOfCopies}" style="width: 35px;" disabled/>
+        </label>
+        <form th:if="${book.numberOfCopies > 0 && #authorization.expression('isAuthenticated()') && !#authorization.expression('hasRole(''ADMIN'')')}"
+              th:action="@{/cart/{id}(id=${book.id})}" method="post">
+          <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+          <input type="hidden" name="bookId" th:value="${book.id}"/>
+          <label>
+            <input type="number" name="quantity" min="1" th:max="${book.numberOfCopies}" value="1"
+                   style="width: 35px;"/>
+          </label>
           <button class="cart-button" type="submit" title="Add to Cart">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 90" width="22" height="22" fill="white">
               <g transform="translate(0, 4)">
@@ -92,18 +102,26 @@
             </svg>
           </button>
         </form>
-        <form th:if="${session.user != null and session.user.role.name() == 'ADMIN'}" th:action="@{/books/{id}(id=${book.id})}" method="get">
+        <form th:if="${#authorization.expression('hasRole(''ADMIN'')')}" th:action="@{/books/{id}(id=${book.id})}"
+              method="get">
           <button class="edit-button" type="submit" title="Edit">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="white">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24"
+                 stroke="white">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
             </svg>
           </button>
         </form>
-        <form th:if="${session.user != null and session.user.role.name() == 'ADMIN'}" th:action="@{/books/delete/{id}(id=${book.id})}" method="post">
+        <form th:if="${#authorization.expression('hasRole(''ADMIN'')')}"
+              th:action="@{/books/delete/{id}(id=${book.id})}" method="post">
           <input type="hidden" name="_method" value="delete"/>
-          <button class="delete-button" type="submit" onclick="return confirm('Are you sure you want to delete this book?\nThis will remove the book from any associated authors')" title="Delete">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="white">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0 1 16.138 21H7.862a2 2 0 0 1-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-7 0a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1"/>
+          <button class="delete-button" type="submit"
+                  onclick="return confirm('Are you sure you want to delete this book?\nThis will remove the book from any associated authors')"
+                  title="Delete">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24"
+                 stroke="white">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 7l-.867 12.142A2 2 0 0 1 16.138 21H7.862a2 2 0 0 1-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-7 0a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1"/>
             </svg>
           </button>
         </form>

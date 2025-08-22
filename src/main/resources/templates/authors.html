@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Books Store Application</title>
@@ -13,23 +13,23 @@
   <div class="navbar-container">
     <a class="navbar-logo" th:href="@{/books}">Bookshop</a>
     <div class="navbar-actions">
-      <div th:if="${session.user != null and session.user.role.name() == 'ADMIN'}">
+      <div th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
         <form th:action="@{/new}" method="get">
           <button class="navbar-button" type="submit">Add Book</button>
         </form>
       </div>
-      <div th:if="${session.user != null and session.user.role.name() == 'ADMIN'}">
+      <div th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
         <form th:action="@{/addAuthor}" method="get">
           <button class="navbar-button" type="submit">Add Author</button>
         </form>
       </div>
-      <form th:if="${session.user != null && session.user.role.name() != 'ADMIN'}" th:action="@{/cart}" method="get">
+      <form th:if="${#authorization.expression('hasRole(''USER'')')}" th:action="@{/cart}" method="get">
         <button class="navbar-button" type="submit">Cart</button>
       </form>
-      <form th:if="${session.user != null}" th:action="@{/logout}" method="get">
+      <form th:if="${#authorization.expression('isAuthenticated()')}" th:action="@{/logout}" method="get">
         <button class="navbar-button" type="submit">Log out</button>
       </form>
-      <form th:unless="${session.user != null}" th:action="@{/}" method="get">
+      <form th:unless="${#authorization.expression('isAuthenticated()')}" th:action="@{/}" method="get">
         <button class="navbar-button" type="submit">Log in</button>
       </form>
     </div>
@@ -75,7 +75,7 @@
       </div>
 
       <div class="book-actions">
-        <form th:if="${session.user != null and session.user.role.name() == 'ADMIN'}"
+        <form th:if="${#authorization.expression('hasRole(''ADMIN'')')}"
               th:action="@{/authors/{id}(id=${author.id})}" method="get">
           <button class="edit-button" type="submit" title="Edit">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24"
@@ -85,7 +85,7 @@
             </svg>
           </button>
         </form>
-        <form th:if="${session.user != null and session.user.role.name() == 'ADMIN'}"
+        <form th:if="${#authorization.expression('hasRole(''ADMIN'')')}"
               th:action="@{/authors/{id}(id=${author.id})}" method="post">
           <input type="hidden" name="_method" value="delete"/>
           <button class="delete-button" type="submit"

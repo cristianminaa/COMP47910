@@ -3,108 +3,121 @@ package com.cristianmina.comp47910.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Entity
-@Table(name="books")
+@Table(name = "books")
 public class Book {
 
-    @Id
-    @GeneratedValue
-    private Long id;
+  @Id
+  @GeneratedValue
+  private Long id;
 
-    @NotBlank
-    private String name;
+  @NotBlank
+  @Size(max = 100)
+  @Pattern(regexp = "^[a-zA-Z0-9\\s\\-.,!?'\"]+$", message = "Invalid characters in title")
+  private String name;
 
-    @ManyToMany
-    @JoinTable(
-            name = "authorship",
-            joinColumns = @JoinColumn(name = "id"),
-            inverseJoinColumns = @JoinColumn(name = "author_id"))
-    private List<Author> authors;
+  @ManyToMany
+  @JoinTable(
+          name = "authorship",
+          joinColumns = @JoinColumn(name = "id"),
+          inverseJoinColumns = @JoinColumn(name = "author_id"))
+  private List<Author> authors;
 
-    @NotNull
-    private Double price;
+  @NotNull
+  private Double price;
 
-    private int year;
-    private int numberOfCopies;
+  private int year;
+  private int numberOfCopies;
 
-    public Book() {
-        super();
-    }
+  public Book() {
+    super();
+  }
 
-    public Book(Long id, String name, List<Author> authors, Double price, int year, int numberOfCopies) {
-        this.id = id;
-        this.name = name;
-        this.authors = authors;
-        this.price = price;
-        this.year = year;
-        this.numberOfCopies = numberOfCopies;
-    }
+  public Book(Long id, String name, List<Author> authors, Double price, int year, int numberOfCopies) {
+    this.id = id;
+    this.name = name;
+    this.authors = authors;
+    this.price = price;
+    this.year = year;
+    this.numberOfCopies = numberOfCopies;
+  }
 
-    public String getTitle() {
-        return name;
-    }
-    public void setTitle(String name) {
-        this.name = name;
-    }
+  public String getTitle() {
+    return name;
+  }
 
-    public void addAuthor(Author author) {
-        this.authors.add(author);
-    }
-    public void removeAuthor(Author author) {
-        this.authors.remove(author);
-    }
-    public List<Author> getAuthors() {
-        return authors;
-    }
-    public String getAuthorNames() {
-        return authors.stream().map(Author::getFullName).collect(Collectors.joining(", "));
-    }
-    public void setAuthors(List<Author> authors) {
-        this.authors = authors;
-    }
+  public void setTitle(String name) {
+    this.name = name;
+  }
 
-    public Long getId(){
-        return id;
-    }
-    public void setId(Long id){
-        this.id = id;
-    }
+  public void addAuthor(Author author) {
+    this.authors.add(author);
+  }
 
-    public Double getPrice(){
-        return price;
-    }
-    public void setPrice(Double price){
-        this.price = price;
-    }
+  public void removeAuthor(Author author) {
+    this.authors.remove(author);
+  }
 
-    public int getYear() {
-        return year;
-    }
-    public void setYear(int year) {
-        this.year = year;
-    }
+  public List<Author> getAuthors() {
+    return authors;
+  }
 
-    public int getNumberOfCopies() {
-        return numberOfCopies;
-    }
-    public void setNumberOfCopies(int numberOfCopies) {
-        this.numberOfCopies = numberOfCopies;
-    }
+  public String getAuthorNames() {
+    return authors.stream().map(Author::getFullName).collect(Collectors.joining(", "));
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Book book = (Book) o;
-        return id != null && id.equals(book.id);
-    }
+  public void setAuthors(List<Author> authors) {
+    this.authors = authors;
+  }
 
-    @Override
-    public int hashCode() {
-        return id != null ? id.hashCode() : 0;
-    }
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public Double getPrice() {
+    return price;
+  }
+
+  public void setPrice(Double price) {
+    this.price = price;
+  }
+
+  public int getYear() {
+    return year;
+  }
+
+  public void setYear(int year) {
+    this.year = year;
+  }
+
+  public int getNumberOfCopies() {
+    return numberOfCopies;
+  }
+
+  public void setNumberOfCopies(int numberOfCopies) {
+    this.numberOfCopies = numberOfCopies;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Book book = (Book) o;
+    return id != null && id.equals(book.id);
+  }
+
+  @Override
+  public int hashCode() {
+    return id != null ? id.hashCode() : 0;
+  }
 }

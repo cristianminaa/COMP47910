@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Books Store Login</title>
-  <link rel="icon" type="image/png" th:href="@{/icons8-library-96.png}" />
-  <link rel="stylesheet" th:href="@{/css/main.css}" />
-  <link rel="stylesheet" th:href="@{/css/index.css}" />
+  <link rel="icon" type="image/png" th:href="@{/icons8-library-96.png}"/>
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+  <link rel="stylesheet" th:href="@{/css/index.css}"/>
 </head>
 <body>
 <div class="login-wrapper">
@@ -13,16 +13,18 @@
     <h2>Login</h2>
 
     <label for="username">Username</label>
-    <input type="text" id="username" name="username" required />
+    <input type="text" id="username" name="username" required/>
 
     <label for="password">Password</label>
-    <input type="password" id="password" name="password" />
+    <input type="password" id="password" name="password"/>
 
     <button type="submit">Login</button>
 
     <a th:href="@{/books}" class="guest-button">Continue as Guest</a>
 
     <p class="login-note">Don't have an account? <a th:href="@{/register}">Register</a></p>
+
+    <p th:if="${error}" class="error-message" th:text="${error}"></p>
   </form>
 </div>
 

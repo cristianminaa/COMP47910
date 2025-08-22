@@ -2,9 +2,15 @@ package com.cristianmina.comp47910.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Entity
@@ -16,7 +22,7 @@ import java.util.Map;
         }
 )
 @Inheritance(strategy = InheritanceType.JOINED)
-public class User {
+public class User implements UserDetails {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -25,11 +31,13 @@ public class User {
   private String name;
   @NotBlank
   private String surname;
-  @NotBlank
+  @NotNull
   private LocalDate dateOfBirth;
   @NotBlank
   private String address;
   @NotBlank
+  @Pattern(regexp = "^[+]?[(]?[0-9]{3}[)]?[-\\s.]?[0-9]{3}[-\\s.]?[0-9]{4,6}$",
+          message = "Invalid phone number format")
   private String phoneNumber;
   @NotBlank
   @Column(unique = true)
@@ -124,6 +132,11 @@ public class User {
 
   public void setUsername(String username) {
     this.username = username;
+  }
+
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return List.of(() -> "ROLE_" + role.name());
   }
 
   public String getPassword() {

@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <title>Order Confirmation</title>
-  <link rel="icon" type="image/png" th:href="@{/icons8-library-96.png}" />
-  <link rel="stylesheet" th:href="@{/css/main.css}" />
-  <link rel="stylesheet" th:href="@{/css/index.css}" />
-  <link rel="stylesheet" th:href="@{/css/orderConfirmation.css}" />
+  <link rel="icon" type="image/png" th:href="@{/icons8-library-96.png}"/>
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+  <link rel="stylesheet" th:href="@{/css/index.css}"/>
+  <link rel="stylesheet" th:href="@{/css/orderConfirmation.css}"/>
 
 </head>
 <body>
@@ -18,7 +18,7 @@
       <form th:if="${session.user != null and session.user.role.name() != 'ADMIN'}" th:action="@{/cart}" method="get">
         <button class="navbar-button" type="submit">Cart</button>
       </form>
-      <form th:if="${session.user != null}" th:action="@{/logout}" method="get">
+      <form th:if="${#authorization.expression('isAuthenticated()')}" th:action="@{/logout}" method="get">
         <button class="navbar-button" type="submit">Log out</button>
       </form>
     </div>

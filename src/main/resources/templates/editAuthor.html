@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
   <meta charset="UTF-8">
   <title th:text="'Editing author: ' + ${author.getFullName()}">Books Store Application</title>
-  <link rel="icon" type="image/png" th:href="@{/icons8-library-96.png}" />
-  <link rel="stylesheet" th:href="@{/css/main.css}" />
-  <link rel="stylesheet" th:href="@{/css/addedit.css}" />
+  <link rel="icon" type="image/png" th:href="@{/icons8-library-96.png}"/>
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+  <link rel="stylesheet" th:href="@{/css/addedit.css}"/>
 </head>
 <body>
 
@@ -13,12 +13,12 @@
   <div class="navbar-container">
     <a class="navbar-logo" th:href="@{/books}">Bookshop</a>
     <div class="navbar-actions">
-      <div th:if="${session.user != null and session.user.role.name() == 'ADMIN'}">
+      <div th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
         <form th:action="@{/new}" method="get">
           <button class="navbar-button" type="submit">Add Book</button>
         </form>
       </div>
-      <div th:if="${session.user != null and session.user.role.name() == 'ADMIN'}">
+      <div th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
         <form th:action="@{/addAuthor}" method="get">
           <button class="navbar-button" type="submit">Add Author</button>
         </form>
@@ -26,7 +26,7 @@
       <form th:if="${session.user != null and session.user.role.name() != 'ADMIN'}" th:action="@{/cart}" method="get">
         <button class="navbar-button" type="submit">Cart</button>
       </form>
-      <form th:if="${session.user != null}" th:action="@{/logout}" method="get">
+      <form th:if="${#authorization.expression('isAuthenticated()')}" th:action="@{/logout}" method="get">
         <button class="navbar-button" type="submit">Log out</button>
       </form>
     </div>
@@ -37,32 +37,40 @@
 
 <div class="center">
   <form th:action="@{/authors}" method="post" th:object="${author}">
-    <input type="hidden" name="_method" value="put" />
+    <input type="hidden" name="_method" value="put"/>
     <table>
 
-      <input type="hidden" th:field="*{id}" />
+      <input type="hidden" th:field="*{id}"/>
 
       <tr>
         <th>First Name:</th>
-        <td><input type="text" th:field="*{firstName}" /></td>
+        <td><label>
+          <input type="text" th:field="*{firstName}"/>
+        </label></td>
       </tr>
 
       <tr>
         <th>Last Name:</th>
-        <td><input type="text" th:field="*{lastName}" /></td>
+        <td><label>
+          <input type="text" th:field="*{lastName}"/>
+        </label></td>
       </tr>
 
       <tr>
-        <td colspan="2" style="text-align: center;" th:unless="${!#lists.isEmpty(listBooks)}">You will be able to add books once you create some.</td>
+        <td colspan="2" style="text-align: center;" th:unless="${!#lists.isEmpty(listBooks)}">You will be able to add
+          books once you create some.
+        </td>
       </tr>
       <tr th:if="${listBooks != null and !#lists.isEmpty(listBooks)}">
         <th>Books:</th>
         <td>
-          <select th:field="*{books}" multiple size="6" class="books-select">
-            <option th:each="book : ${listBooks}"
-                    th:value="${book.id}"
-                    th:text="${book.title}"></option>
-          </select>
+          <label>
+            <select th:field="*{books}" multiple size="6" class="books-select">
+              <option th:each="book : ${listBooks}"
+                      th:value="${book.id}"
+                      th:text="${book.title}"></option>
+            </select>
+          </label>
         </td>
         <small>Hold CTRL (CMD on macOS) to select multiple books.</small>
       </tr>

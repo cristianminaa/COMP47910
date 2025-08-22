@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
   <meta charset="UTF-8">
   <title th:text="'Editing book: ' + ${book.getTitle()}">Books Store Application</title>
-  <link rel="icon" type="image/png" th:href="@{/icons8-library-96.png}" />
-  <link rel="stylesheet" th:href="@{/css/main.css}" />
-  <link rel="stylesheet" th:href="@{/css/addedit.css}" />
+  <link rel="icon" type="image/png" th:href="@{/icons8-library-96.png}"/>
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+  <link rel="stylesheet" th:href="@{/css/addedit.css}"/>
 </head>
 <body>
 
@@ -13,12 +13,12 @@
   <div class="navbar-container">
     <a class="navbar-logo" th:href="@{/books}">Bookshop</a>
     <div class="navbar-actions">
-      <div th:if="${session.user != null and session.user.role.name() == 'ADMIN'}">
+      <div th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
         <form th:action="@{/new}" method="get">
           <button class="navbar-button" type="submit">Add Book</button>
         </form>
       </div>
-      <div th:if="${session.user != null and session.user.role.name() == 'ADMIN'}">
+      <div th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
         <form th:action="@{/addAuthor}" method="get">
           <button class="navbar-button" type="submit">Add Author</button>
         </form>
@@ -26,7 +26,7 @@
       <form th:if="${session.user != null and session.user.role.name() != 'ADMIN'}" th:action="@{/cart}" method="get">
         <button class="navbar-button" type="submit">Cart</button>
       </form>
-      <form th:if="${session.user != null}" th:action="@{/logout}" method="get">
+      <form th:if="${#authorization.expression('isAuthenticated()')}" th:action="@{/logout}" method="get">
         <button class="navbar-button" type="submit">Log out</button>
       </form>
     </div>
@@ -37,14 +37,16 @@
 
 <div class="center">
   <form th:action="@{/books}" method="post" th:object="${book}">
-    <input type="hidden" name="_method" value="put" />
+    <input type="hidden" name="_method" value="put"/>
     <table>
 
-      <input type="hidden" th:field="*{id}" />
+      <input type="hidden" th:field="*{id}"/>
 
       <tr>
         <th>Title:</th>
-        <td><input type="text" th:field="*{title}" /></td>
+        <td><label>
+          <input type="text" th:field="*{title}"/>
+        </label></td>
       </tr>
 
       <tr th:unless="${!#lists.isEmpty(listAuthors)}">
@@ -53,28 +55,36 @@
       <tr th:if="${listAuthors != null && !#lists.isEmpty(listAuthors)}">
         <th>Authors:</th>
         <td>
-          <select th:field="*{authors}" multiple size="6" class="books-select">
-            <option th:each="author : ${listAuthors}"
-                    th:value="${author.id}"
-                    th:text="${author.firstName} + ' ' + ${author.lastName}"></option>
-          </select>
+          <label>
+            <select th:field="*{authors}" multiple size="6" class="books-select">
+              <option th:each="author : ${listAuthors}"
+                      th:value="${author.id}"
+                      th:text="${author.firstName} + ' ' + ${author.lastName}"></option>
+            </select>
+          </label>
         </td>
         <small>Hold CTRL (CMD on macOS) to select multiple authors.</small>
       </tr>
 
       <tr>
         <th>Year:</th>
-        <td><input type="number" th:field="*{year}" /></td>
+        <td><label>
+          <input type="number" th:field="*{year}"/>
+        </label></td>
       </tr>
 
       <tr>
         <th>Price:</th>
-        <td><input type="number" step="0.01" min="1" value="1" th:field="*{price}" /></td>
+        <td><label>
+          <input type="number" step="0.01" min="1" value="1" th:field="*{price}"/>
+        </label></td>
       </tr>
 
       <tr>
         <th>Number of Copies:</th>
-        <td><input type="number" th:field="*{numberOfCopies}" /></td>
+        <td><label>
+          <input type="number" th:field="*{numberOfCopies}"/>
+        </label></td>
       </tr>
 
       <tr>

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Books Store Register</title>
-  <link rel="icon" type="image/png" th:href="@{/icons8-library-96.png}" />
+  <link rel="icon" type="image/png" th:href="@{/icons8-library-96.png}"/>
   <link rel="stylesheet" th:href="@{/css/main.css}"/>
   <link rel="stylesheet" th:href="@{/css/index.css}"/>
 </head>
@@ -55,6 +55,8 @@
     <button type="submit">Register</button>
 
     <p class="register-note">Already have an account? <a th:href="@{/}">Login here</a>.</p>
+
+    <p th:if="${error}" class="error-message" th:text="${error}"></p>
   </form>
 </div>
 

@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Books Store Checkout</title>
-  <link rel="icon" type="image/png" th:href="@{/icons8-library-96.png}" />
-  <link rel="stylesheet" th:href="@{/css/main.css}" />
-  <link rel="stylesheet" th:href="@{/css/index.css}" />
-  <link rel="stylesheet" th:href="@{/css/checkout.css}" />
+  <link rel="icon" type="image/png" th:href="@{/icons8-library-96.png}"/>
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+  <link rel="stylesheet" th:href="@{/css/index.css}"/>
+  <link rel="stylesheet" th:href="@{/css/checkout.css}"/>
 </head>
 <body>
 
@@ -17,7 +17,7 @@
       <form th:if="${session.user != null and session.user.role.name() != 'ADMIN'}" th:action="@{/cart}" method="get">
         <button class="navbar-button" type="submit">Cart</button>
       </form>
-      <form th:if="${session.user != null}" th:action="@{/logout}" method="get">
+      <form th:if="${#authorization.expression('isAuthenticated()')}" th:action="@{/logout}" method="get">
         <button class="navbar-button" type="submit">Log out</button>
       </form>
     </div>
@@ -63,22 +63,33 @@
 
       <div class="form-group">
         <label>Card Number</label>
-        <input type="number" class="form-value" name="cardNumber" minlength="16" maxlength="16" pattern="\d{16,19}" placeholder="Card Number" required>
+        <label>
+          <input type="number" class="form-value" name="cardNumber" minlength="16" maxlength="16" pattern="\d{16,19}"
+                 placeholder="Card Number" required>
+        </label>
       </div>
 
       <div class="form-group">
         <label>Card Owner</label>
-        <input type="text" class="form-value" name="cardOwner" maxlength="50" pattern="[A-Za-z\s]+" placeholder="Card Owner" required>
+        <label>
+          <input type="text" class="form-value" name="cardOwner" maxlength="50" pattern="[A-Za-z\s]+"
+                 placeholder="Card Owner" required>
+        </label>
       </div>
 
       <div class="form-group">
         <label>Expiration Date</label>
-        <input type="text" class="form-value" name="expirationDate" maxlength="5" pattern="(0[1-9]|1[0-2])\/\d{2}" placeholder="MM/YY" required>
+        <label>
+          <input type="text" class="form-value" name="expirationDate" maxlength="5" pattern="(0[1-9]|1[0-2])\/\d{2}"
+                 placeholder="MM/YY" required>
+        </label>
       </div>
 
       <div class="form-group">
         <label>CVV</label>
-        <input type="text" class="form-value" name="cvv" maxlength="4" pattern="\d{3,4}" placeholder="CVV" required>
+        <label>
+          <input type="text" class="form-value" name="cvv" maxlength="4" pattern="\d{3,4}" placeholder="CVV" required>
+        </label>
       </div>
     </div>
 
@@ -89,18 +100,18 @@
       <div class="summary-table-container">
         <table class="summary-table">
           <thead>
-            <tr>
-              <th>Title</th>
-              <th>Quantity</th>
-              <th>Price</th>
-            </tr>
+          <tr>
+            <th>Title</th>
+            <th>Quantity</th>
+            <th>Price</th>
+          </tr>
           </thead>
           <tbody>
-            <tr th:each="book : ${booksInCart}">
-              <td th:text="${book.key.title}"></td>
-              <td th:text="${book.value}"></td>
-              <td th:text="'$' + (${book.key.price == book.key.price.intValue()} ? ${book.key.price.intValue()} : ${#numbers.formatDecimal(book.key.price, 1, 2)})"></td>
-            </tr>
+          <tr th:each="book : ${booksInCart}">
+            <td th:text="${book.key.title}"></td>
+            <td th:text="${book.value}"></td>
+            <td th:text="'$' + (${book.key.price == book.key.price.intValue()} ? ${book.key.price.intValue()} : ${#numbers.formatDecimal(book.key.price, 1, 2)})"></td>
+          </tr>
           </tbody>
         </table>
       </div>
