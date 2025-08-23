@@ -125,7 +125,7 @@ public class BookController {
   }
 
   // Delete a Book
-  @PreAuthorize("isAuthenticated() and hasRole('ADMIN')")
+  @PreAuthorize("isAuthenticated() && hasRole('ADMIN')")
   @DeleteMapping("/books/delete/{id}")
   @Transactional(rollbackFor = Exception.class)
   public String deleteBook(@PathVariable(value = "id") Long bookId,

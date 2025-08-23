@@ -10,6 +10,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 
 @EnableMethodSecurity
 @Configuration
@@ -59,7 +60,7 @@ public class SecurityConfig {
             );
     http.headers(headers -> headers
             .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
-            .xssProtection(HeadersConfigurer.XXssConfig::disable)
+            .xssProtection(xss -> xss.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))
             .contentSecurityPolicy(csp -> csp.policyDirectives(
                     "default-src 'self'; " +
                             "script-src 'self'; " +
@@ -69,7 +70,8 @@ public class SecurityConfig {
             ))
             .httpStrictTransportSecurity(hsts -> hsts
                     .includeSubDomains(true)
-                    .maxAgeInSeconds(1800)
+                    .maxAgeInSeconds(31536000) // 1 year
+                    .preload(true)
             )
     );
     return http.build();

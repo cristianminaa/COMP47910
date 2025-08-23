@@ -1,53 +1,29 @@
 package com.cristianmina.comp47910.security;
 
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class RateLimitingService {
-  private final Map<String, List<Long>> attempts = new ConcurrentHashMap<>();
-  private static final int MAX_ATTEMPTS = 5;
-  private static final long TIME_WINDOW = 300000; // 5 minutes
+  private static final int MAX_ATTEMPTS = 3;
+  private static final long TIME_WINDOW = 900000; // 15 minutes
+  private static final long LOCKOUT_TIME = 3600000; // 1 hour
+
+  private final Map<String, AtomicInteger> failureCount = new ConcurrentHashMap<>();
+  private final Map<String, Long> lockoutUntil = new ConcurrentHashMap<>();
 
   public boolean isBlocked(String key) {
-    List<Long> timestamps = attempts.getOrDefault(key, new ArrayList<>());
-    long now = System.currentTimeMillis();
-
-    // Remove old attempts
-    timestamps.removeIf(time -> now - time > TIME_WINDOW);
-
-    if (timestamps.size() >= MAX_ATTEMPTS) {
+    // Check permanent lockout after 10 failures
+    if (failureCount.getOrDefault(key, new AtomicInteger(0)).get() >= 10) {
+      // notifySecurityTeam(key);
       return true;
     }
 
-    timestamps.add(now);
-    attempts.put(key, timestamps);
-    return false;
-  }
-
-  // Cleanup expired entries every 10 minutes to prevent memory leak
-  @Scheduled(fixedRate = 600000)
-  public void cleanupExpiredAttempts() {
-    long now = System.currentTimeMillis();
-    Iterator<Map.Entry<String, List<Long>>> iterator = attempts.entrySet().iterator();
-    
-    while (iterator.hasNext()) {
-      Map.Entry<String, List<Long>> entry = iterator.next();
-      List<Long> timestamps = entry.getValue();
-      
-      // Remove expired timestamps
-      timestamps.removeIf(time -> now - time > TIME_WINDOW);
-      
-      // Remove empty entries to free memory
-      if (timestamps.isEmpty()) {
-        iterator.remove();
-      }
-    }
+    // Check temporary lockout
+    Long lockout = lockoutUntil.get(key);
+    return lockout != null && System.currentTimeMillis() < lockout;
   }
 }

@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Controller
+@PreAuthorize("hasRole('ADMIN')")
 public class AuthorController {
   private final AuthorRepository authorRepository;
   private final BookRepository bookRepository;
@@ -31,6 +32,7 @@ public class AuthorController {
 
   // Get All Authors
   @GetMapping("/authors")
+  @PreAuthorize("permitAll()")
   public String getAllAuthors(Model model) {
     List<Author> listAuthors = authorRepository.findAll();
     model.addAttribute("listAuthors", listAuthors);
