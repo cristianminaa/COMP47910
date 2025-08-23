@@ -171,12 +171,23 @@ public class User implements UserDetails {
   }
 
   public void setQuantityInCart(Book book, int quantity) {
-    if (cart.containsKey(book)) {
-      if (quantity > 0) {
-        cart.put(book, quantity);
-      } else {
-        cart.remove(book);
-      }
+    // Validate inputs
+    if (quantity < 0) {
+      throw new IllegalArgumentException("Quantity cannot be negative");
+    }
+    
+    if (quantity > 99) {
+      throw new IllegalArgumentException("Cannot add more than 99 items");
+    }
+
+    if (quantity > book.getNumberOfCopies()) {
+      throw new IllegalArgumentException("Not enough stock");
+    }
+
+    if (quantity < 1) {
+      cart.remove(book);
+    } else {
+      cart.put(book, quantity);
     }
   }
 

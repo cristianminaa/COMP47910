@@ -5,8 +5,11 @@ import com.cristianmina.comp47910.model.Author;
 import com.cristianmina.comp47910.model.Book;
 import com.cristianmina.comp47910.repository.AuthorRepository;
 import com.cristianmina.comp47910.repository.BookRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -21,9 +24,10 @@ public class AuthorController {
   private AuthorRepository authorRepository;
   @Autowired
   private BookRepository bookRepository;
+  private static final Logger logger = LoggerFactory.getLogger(AuthorController.class);
 
   // Get All Authors
-  @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+  @PreAuthorize("isAuthenticated()")
   @GetMapping("/authors")
   public String getAllAuthors(Model model) {
     List<Author> listAuthors = authorRepository.findAll();
@@ -32,7 +36,7 @@ public class AuthorController {
   }
 
   // Show Add Author Form
-  @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+  @PreAuthorize("isAuthenticated()")
   @RequestMapping("/addAuthor")
   public String showAddAuthorForm(Model model) {
     model.addAttribute("author", new Author());
@@ -41,11 +45,12 @@ public class AuthorController {
   }
 
   // Create a New Author
-  @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+  @PreAuthorize("isAuthenticated()")
   @PostMapping("/authors")
   @Transactional(rollbackFor = Exception.class)
   public String newAuthor(@ModelAttribute("author") Author author,
-                          @RequestParam(value = "books", required = false) List<Long> bookIds) {
+                          @RequestParam(value = "books", required = false) List<Long> bookIds,
+                          Authentication authentication) {
     if (bookIds != null && !bookIds.isEmpty()) {
       author.setBooks(bookRepository.findAllById(bookIds));
       for (Book book : author.getBooks()) {
@@ -56,12 +61,13 @@ public class AuthorController {
     } else {
       author.setBooks(new ArrayList<>());
     }
+    logger.info("New author added: {} by user: {}", author.getFullName(), authentication.getName());
     authorRepository.save(author);
     return "redirect:/authors";
   }
 
   // Get a Single Author
-  @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+  @PreAuthorize("isAuthenticated()")
   @GetMapping("/authors/{id}")
   public String getAuthorById(@PathVariable(value = "id") Long authorId,
                               Model model) throws AuthorNotFoundException {
@@ -73,11 +79,12 @@ public class AuthorController {
   }
 
   // Update an Existing Author
-  @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+  @PreAuthorize("isAuthenticated()")
   @PutMapping("/authors")
   @Transactional(rollbackFor = Exception.class)
   public String updateAuthor(@ModelAttribute("author") Author author,
-                             @RequestParam(value = "books", required = false) List<Long> bookIds) {
+                             @RequestParam(value = "books", required = false) List<Long> bookIds,
+                             Authentication authentication) {
     if (bookIds != null && !bookIds.isEmpty()) {
       author.setBooks(bookRepository.findAllById(bookIds));
       for (Book book : author.getBooks()) {
@@ -92,15 +99,17 @@ public class AuthorController {
         bookRepository.save(book);
       }
     }
+    logger.info("Author updated: {} by user: {}", author.getFullName(), authentication.getName());
     authorRepository.save(author);
     return "redirect:/authors";
   }
 
   // Delete an Author
-  @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+  @PreAuthorize("isAuthenticated()")
   @DeleteMapping("/authors/{id}")
   @Transactional(rollbackFor = Exception.class)
-  public String deleteAuthor(@PathVariable(value = "id") Long authorId) throws AuthorNotFoundException {
+  public String deleteAuthor(@PathVariable(value = "id") Long authorId,
+                             Authentication authentication) throws AuthorNotFoundException {
     bookRepository.findAll().forEach(book -> {
       boolean removed = book.getAuthors().removeIf(deletedAuthor -> deletedAuthor.getId().equals(authorId));
       if (removed) {
@@ -108,6 +117,7 @@ public class AuthorController {
       }
     });
     Author author = authorRepository.findById(authorId).orElseThrow(() -> new AuthorNotFoundException(authorId));
+    logger.info("Author deleted: {} by user: {}", author.getFullName(), authentication.getName());
     authorRepository.delete(author);
     return "redirect:/authors";
   }

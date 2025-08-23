@@ -6,7 +6,8 @@ import com.cristianmina.comp47910.repository.UserRepository;
 import com.cristianmina.comp47910.security.PasswordValidator;
 import com.cristianmina.comp47910.security.RateLimitingService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -23,15 +24,13 @@ public class AuthController {
 
   @Autowired
   private UserRepository userRepository;
-
   @Autowired
   private BCryptPasswordEncoder passwordEncoder;
-
   @Autowired
   private PasswordValidator passwordValidator;
-
   @Autowired
   private RateLimitingService rateLimitingService;
+  private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
   @GetMapping("/")
   public String showLoginForm() {
@@ -58,21 +57,26 @@ public class AuthController {
                                     HttpServletRequest request) {
 
     String clientIP = request.getRemoteAddr();
+    logger.info("Registration attempt from Client IP: {}", clientIP);
 
+    // Rate limiting check
     if (rateLimitingService.isBlocked(clientIP)) {
       redirectAttributes.addFlashAttribute("error", "Too many registration attempts. Please try again later.");
+      logger.warn("Registration attempts from Client IP {} were blocked. Too many registration attempts.", clientIP);
       return "redirect:/register";
     }
 
-    // Validate password first
+    // Validate password
     if (!passwordValidator.validate(password)) {
       redirectAttributes.addFlashAttribute("error", "Password must contain at least 8 characters, including uppercase, lowercase, number, and special character");
+      logger.warn("Registration attempt from Client IP {} unsuccessful. Password does not meet complexity requirements.", clientIP);
       return "redirect:/register";
     }
 
-    // Check if username already exists
+    // Check username already exists
     if (userRepository.findByUsername(username).isPresent()) {
       redirectAttributes.addFlashAttribute("error", "Username already exists");
+      logger.warn("Registration attempt from Client IP {} unsuccessful. Username already exists.", clientIP);
       return "redirect:/register";
     }
 
@@ -90,18 +94,14 @@ public class AuthController {
       );
       userRepository.save(user);
 
-      // Let Spring Security handle authentication instead of manual session
       redirectAttributes.addFlashAttribute("message", "Registration successful! Please log in.");
+      logger.info("Registration attempt from Client IP {} successful.", clientIP);
       return "redirect:/";
     } catch (Exception e) {
       redirectAttributes.addFlashAttribute("error", "Registration failed. Please try again.");
+      logger.warn("Registration attempt from Client IP {} failed.", clientIP);
       return "redirect:/register";
     }
   }
 
-  @GetMapping("/logout")
-  public String showRegisterForm(HttpSession session) {
-    session.removeAttribute("user");
-    return "redirect:/";
-  }
 }

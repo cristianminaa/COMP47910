@@ -23,10 +23,12 @@
           <button class="navbar-button" type="submit">Add Author</button>
         </form>
       </div>
-      <form th:if="${session.user != null and session.user.role.name() != 'ADMIN'}" th:action="@{/cart}" method="get">
+      <form th:if="${#authorization.expression('isAuthenticated()') and #authorization.expression('hasRole(''ADMIN'')')}"
+            th:action="@{/cart}" method="get">
         <button class="navbar-button" type="submit">Cart</button>
       </form>
-      <form th:if="${#authorization.expression('isAuthenticated()')}" th:action="@{/logout}" method="get">
+      <form th:if="${#authorization.expression('isAuthenticated()')}" th:action="@{/logout}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <button class="navbar-button" type="submit">Log out</button>
       </form>
     </div>
@@ -41,6 +43,7 @@
     <table>
 
       <input type="hidden" th:field="*{id}"/>
+      <input type="hidden" th:field="*{version}"/>
 
       <tr>
         <th>Title:</th>

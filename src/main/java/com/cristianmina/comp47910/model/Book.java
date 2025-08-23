@@ -34,6 +34,9 @@ public class Book {
 
   private int year;
   private int numberOfCopies;
+  
+  @Version
+  private Long version;
 
   public Book() {
     super();
@@ -106,6 +109,14 @@ public class Book {
 
   public void setNumberOfCopies(int numberOfCopies) {
     this.numberOfCopies = numberOfCopies;
+  }
+
+  public Long getVersion() {
+    return version;
+  }
+
+  public void setVersion(Long version) {
+    this.version = version;
   }
 
   @Override

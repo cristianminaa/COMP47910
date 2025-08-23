@@ -1,8 +1,10 @@
 package com.cristianmina.comp47910.security;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,5 +29,25 @@ public class RateLimitingService {
     timestamps.add(now);
     attempts.put(key, timestamps);
     return false;
+  }
+
+  // Cleanup expired entries every 10 minutes to prevent memory leak
+  @Scheduled(fixedRate = 600000)
+  public void cleanupExpiredAttempts() {
+    long now = System.currentTimeMillis();
+    Iterator<Map.Entry<String, List<Long>>> iterator = attempts.entrySet().iterator();
+    
+    while (iterator.hasNext()) {
+      Map.Entry<String, List<Long>> entry = iterator.next();
+      List<Long> timestamps = entry.getValue();
+      
+      // Remove expired timestamps
+      timestamps.removeIf(time -> now - time > TIME_WINDOW);
+      
+      // Remove empty entries to free memory
+      if (timestamps.isEmpty()) {
+        iterator.remove();
+      }
+    }
   }
 }

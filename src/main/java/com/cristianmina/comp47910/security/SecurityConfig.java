@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
@@ -21,25 +23,42 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    // Enable CSRF protection except for login
+    // Enable CSRF protection with secure cookie settings
     http.csrf(csrf -> csrf
                     .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                    .ignoringRequestMatchers("/")
             )
             // Configure authorization
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
-                    .requestMatchers("/register", "/", "logout", "/books").permitAll()
+                    .requestMatchers("/css/**", "/js/**", "/images/**", "/.well-known/**").permitAll()
+                    .requestMatchers("/register", "/", "/books").permitAll()
                     .anyRequest().authenticated()
             )
             .formLogin(form -> form
                     .loginPage("/")
                     .defaultSuccessUrl("/books", true)
                     .permitAll()
+            )
+            .logout(logout -> logout
+                    .logoutUrl("/logout")
+                    .logoutSuccessUrl("/")
+                    .invalidateHttpSession(true)
+                    .deleteCookies("JSESSIONID")
+                    .permitAll()
+            )
+            // Session Management
+            .sessionManagement(session -> session
+                    .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                    .invalidSessionUrl("/")
+                    .maximumSessions(1)
+                    .maxSessionsPreventsLogin(true)
+            )
+            // Exception Handling
+            .exceptionHandling(exception -> exception
+                    .accessDeniedPage("/access-denied")
             );
     http.headers(headers -> headers
-            .frameOptions(frame -> frame.deny())
-            .xssProtection(xss -> xss.disable())
+            .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
+            .xssProtection(HeadersConfigurer.XXssConfig::disable)
             .contentSecurityPolicy(csp -> csp.policyDirectives(
                     "default-src 'self'; " +
                             "script-src 'self' 'unsafe-inline'; " +
