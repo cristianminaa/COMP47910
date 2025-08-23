@@ -6,6 +6,7 @@ import com.cristianmina.comp47910.model.Book;
 import com.cristianmina.comp47910.repository.AuthorRepository;
 import com.cristianmina.comp47910.repository.BookRepository;
 import com.cristianmina.comp47910.repository.UserRepository;
+import com.cristianmina.comp47910.security.Utilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -42,7 +43,7 @@ public class BookController {
 
   // Show Add Book Form
   @GetMapping("/new")
-  @PreAuthorize("isAuthenticated() and hasRole('ADMIN')")
+  @PreAuthorize("isAuthenticated() && hasRole('ADMIN')")
   public String showAddBookForm(Model model) {
     model.addAttribute("book", new Book());
     model.addAttribute("listAuthors", authorRepository.findAll());
@@ -51,7 +52,7 @@ public class BookController {
 
   // Create a new Book
   @PostMapping("/books")
-  @PreAuthorize("isAuthenticated() and hasRole('ADMIN')")
+  @PreAuthorize("isAuthenticated() && hasRole('ADMIN')")
   @Transactional(rollbackFor = Exception.class)
   public String newBook(@ModelAttribute("book") Book book,
                         @RequestParam(value = "authors", required = false) List<Long> authors,
@@ -68,13 +69,13 @@ public class BookController {
       book.setAuthors(new ArrayList<>());
     }
     bookRepository.save(book);
-    logger.info("New book added: {} ID: {} by user: {}", book.getTitle(), book.getId(), authentication.getName());
+    logger.info("New book added: {} ID: {} by user: {}", book.getTitle(), book.getId(), Utilities.sanitizeLogInput(authentication.getName()));
     model.addAttribute("book", book);
     return "redirect:/books";
   }
 
   // Get a Single Book
-  @PreAuthorize("isAuthenticated() and hasRole('ADMIN')")
+  @PreAuthorize("isAuthenticated() && hasRole('ADMIN')")
   @GetMapping("/books/{id}")
   public String getBookById(@PathVariable(value = "id") Long bookId, Model model) throws BookNotFoundException {
     Book book = bookRepository.findById(bookId).orElseThrow(() -> new BookNotFoundException(bookId));
@@ -85,23 +86,23 @@ public class BookController {
   }
 
   // Update an Existing Book
-  @PreAuthorize("isAuthenticated() and hasRole('ADMIN')")
+  @PreAuthorize("isAuthenticated() && hasRole('ADMIN')")
   @PutMapping("/books")
   @Transactional(rollbackFor = Exception.class)
   public String updateBook(@ModelAttribute("book") Book book,
                            @RequestParam(value = "authors", required = false) List<Long> authors,
                            Authentication authentication) throws BookNotFoundException {
-    
+
     // Fetch the existing book with proper version handling
     Book existingBook = bookRepository.findById(book.getId())
             .orElseThrow(() -> new BookNotFoundException(book.getId()));
-    
+
     // Update fields from form data
     existingBook.setTitle(book.getTitle());
     existingBook.setPrice(book.getPrice());
     existingBook.setYear(book.getYear());
     existingBook.setNumberOfCopies(book.getNumberOfCopies());
-    
+
     // Handle authors relationship
     if (authors != null && !authors.isEmpty()) {
       existingBook.setAuthors(authorRepository.findAllById(authors));
@@ -117,8 +118,8 @@ public class BookController {
         authorRepository.save(author);
       }
     }
-    
-    logger.info("Book updated: {} ID: {} by user: {}", existingBook.getTitle(), existingBook.getId(), authentication.getName());
+
+    logger.info("Book updated: {} ID: {} by user: {}", existingBook.getTitle(), existingBook.getId(), Utilities.sanitizeLogInput(authentication.getName()));
     bookRepository.save(existingBook);
     return "redirect:/books";
   }
@@ -142,7 +143,7 @@ public class BookController {
         authorRepository.save(author);
       }
     });
-    logger.info("Book deleted: {} ID: {} by user: {}", book.getTitle(), book.getId(), authentication.getName());
+    logger.info("Book deleted: {} ID: {} by user: {}", book.getTitle(), book.getId(), Utilities.sanitizeLogInput(authentication.getName()));
     bookRepository.delete(book);
     return "redirect:/books";
   }

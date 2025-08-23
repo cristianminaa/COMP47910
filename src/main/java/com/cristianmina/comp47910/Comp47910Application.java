@@ -44,6 +44,7 @@ public class Comp47910Application {
         );
         userRepository.save(admin);
         System.out.println("Admin user created: " + adminUsername);
+        System.out.println("Initial admin password: " + adminUsername);
       }
       String userUsername = "user";
       if (userRepository.findByUsername(userUsername).isEmpty()) {

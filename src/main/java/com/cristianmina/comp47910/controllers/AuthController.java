@@ -72,16 +72,16 @@ public class AuthController {
     }
 
     // Validate password
-    if (!passwordValidator.validate(password)) {
-      redirectAttributes.addFlashAttribute("error", "Password must contain at least 8 characters, including uppercase, lowercase, number, and special character");
+    if (!passwordValidator.validate(password, username)) {
+      redirectAttributes.addFlashAttribute("error", "Password must contain at least 12 characters, including uppercase, lowercase, number, and special character");
       logger.warn("Registration attempt from Client IP {} unsuccessful. Password does not meet complexity requirements.", clientIP);
       return "redirect:/register";
     }
 
     // Check username already exists
     if (userRepository.findByUsername(username).isPresent()) {
-      redirectAttributes.addFlashAttribute("error", "Username already exists");
-      logger.warn("Registration attempt from Client IP {} unsuccessful. Username already exists.", clientIP);
+      redirectAttributes.addFlashAttribute("error", "Invalid credentials");
+      logger.warn("Registration attempt from Client IP {} unsuccessful. Invalid credentials.", clientIP);
       return "redirect:/register";
     }
 

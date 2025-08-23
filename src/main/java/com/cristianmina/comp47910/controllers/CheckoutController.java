@@ -6,11 +6,13 @@ import com.cristianmina.comp47910.model.User;
 import com.cristianmina.comp47910.repository.BookRepository;
 import com.cristianmina.comp47910.repository.UserRepository;
 import com.cristianmina.comp47910.security.RateLimitingService;
+import com.cristianmina.comp47910.security.Utilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -59,14 +61,13 @@ public class CheckoutController {
 
   @PreAuthorize("hasRole('USER')")
   @PostMapping("/placeOrder")
-  @Transactional(rollbackFor = Exception.class)
+  @Transactional(isolation = Isolation.SERIALIZABLE)
   public String placeOrder(@RequestParam String cardNumber,
                            @RequestParam String cardOwner,
                            @RequestParam String expirationDate,
                            @RequestParam String cvv,
                            Authentication authentication,
                            RedirectAttributes redirectAttributes) throws BookNotFoundException {
-    // Get client IP for rate limiting
     String clientIP = getClientIP();
 
     // Check rate limiting for order placement
@@ -88,9 +89,9 @@ public class CheckoutController {
     // Validate payment fields
     try {
       validatePaymentFields(cardNumber, cardOwner, expirationDate, cvv);
-    } catch (IllegalArgumentException e) {
-      logger.warn("Payment validation failed for user {}: {}", authentication.getName(), e.getMessage());
-      redirectAttributes.addFlashAttribute("error", e.getMessage());
+    } catch (Exception e) {
+      logger.warn("Payment validation failed for user {}: {}", Utilities.sanitizeLogInput(authentication.getName()), e.getMessage());
+      redirectAttributes.addFlashAttribute("error", "Failed to validate payment information.");
       return "redirect:/cart";
     }
 
@@ -138,7 +139,7 @@ public class CheckoutController {
     userRepository.save(user);
 
     logger.info("ORDER COMPLETED - Order ID: {}, User: {}, Total Amount: ${}",
-            orderId, user.getUsername(), String.format("%.2f", totalPrice));
+            orderId, Utilities.sanitizeLogInput(authentication.getName()), String.format("%.2f", totalPrice));
 
     return "redirect:/orderConfirmation?orderId=" + orderId;
   }

@@ -5,6 +5,7 @@ import com.cristianmina.comp47910.model.Author;
 import com.cristianmina.comp47910.model.Book;
 import com.cristianmina.comp47910.repository.AuthorRepository;
 import com.cristianmina.comp47910.repository.BookRepository;
+import com.cristianmina.comp47910.security.Utilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -62,7 +63,7 @@ public class AuthorController {
     } else {
       author.setBooks(new ArrayList<>());
     }
-    logger.info("New author added: {} by user: {}", author.getFullName(), authentication.getName());
+    logger.info("New author added: {} by user: {}", author.getFullName(), Utilities.sanitizeLogInput(authentication.getName()));
     authorRepository.save(author);
     return "redirect:/authors";
   }
@@ -100,7 +101,7 @@ public class AuthorController {
         bookRepository.save(book);
       }
     }
-    logger.info("Author updated: {} by user: {}", author.getFullName(), authentication.getName());
+    logger.info("Author updated: {} by user: {}", author.getFullName(), Utilities.sanitizeLogInput(authentication.getName()));
     authorRepository.save(author);
     return "redirect:/authors";
   }
@@ -118,7 +119,7 @@ public class AuthorController {
       }
     });
     Author author = authorRepository.findById(authorId).orElseThrow(() -> new AuthorNotFoundException(authorId));
-    logger.info("Author deleted: {} by user: {}", author.getFullName(), authentication.getName());
+    logger.info("Author deleted: {} by user: {}", author.getFullName(), Utilities.sanitizeLogInput(authentication.getName()));
     authorRepository.delete(author);
     return "redirect:/authors";
   }

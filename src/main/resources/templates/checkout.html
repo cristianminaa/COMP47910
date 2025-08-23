@@ -63,35 +63,70 @@
       </div>
 
       <div class="form-group">
-        <label>Card Number</label>
-        <label>
-          <input type="number" class="form-value" name="cardNumber" minlength="16" maxlength="16" pattern="\d{16,19}"
-                 placeholder="Card Number" autocomplete="cc-number" required>
-        </label>
+        <label for="cardNumber">Card Number</label>
+        <input
+                type="text"
+                class="form-value"
+                id="cardNumber"
+                name="cardNumber"
+                minlength="16"
+                maxlength="19"
+                pattern="\d{16,19}"
+                placeholder="Card Number"
+                autocomplete="cc-number"
+                required
+                inputmode="numeric"
+                title="Card number must be 16 to 19 digits"
+        >
       </div>
 
       <div class="form-group">
-        <label>Card Owner</label>
-        <label>
-          <input type="text" class="form-value" name="cardOwner" maxlength="50" pattern="[A-Za-z\s]+"
-                 placeholder="Card Owner" autocomplete="cc-owner" required>
-        </label>
+        <label for="cardOwner">Card Owner</label>
+        <input
+                type="text"
+                class="form-value"
+                id="cardOwner"
+                name="cardOwner"
+                maxlength="50"
+                pattern="[A-Za-z\s]+"
+                placeholder="Card Owner"
+                autocomplete="cc-owner"
+                required
+                title="Card owner must contain only letters and spaces"
+        >
       </div>
 
       <div class="form-group">
-        <label>Expiration Date</label>
-        <label>
-          <input type="text" class="form-value" name="expirationDate" maxlength="5" pattern="(0[1-9]|1[0-2])\/\d{2}"
-                 placeholder="MM/YY" autocomplete="cc-exp" required>
-        </label>
+        <label for="expirationDate">Expiration Date</label>
+        <input
+                type="text"
+                class="form-value"
+                id="expirationDate"
+                name="expirationDate"
+                maxlength="5"
+                pattern="(0[1-9]|1[0-2])\/\d{2}"
+                placeholder="MM/YY"
+                autocomplete="cc-exp"
+                required
+                title="Expiration date must be in MM/YY format"
+        >
       </div>
 
       <div class="form-group">
-        <label>CVV</label>
-        <label>
-          <input type="text" class="form-value" name="cvv" maxlength="4" pattern="\d{3,4}" placeholder="CVV"
-                 autocomplete="off" required>
-        </label>
+        <label for="cvv">CVV</label>
+        <input
+                type="text"
+                class="form-value"
+                id="cvv"
+                name="cvv"
+                maxlength="4"
+                pattern="\d{3,4}"
+                placeholder="CVV"
+                autocomplete="off"
+                required
+                title="CVV must be 3 or 4 digits"
+                inputmode="numeric"
+        >
       </div>
     </div>
 
