@@ -4,7 +4,6 @@ import com.cristianmina.comp47910.model.Admin;
 import com.cristianmina.comp47910.model.User;
 import com.cristianmina.comp47910.model.UserRole;
 import com.cristianmina.comp47910.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -28,11 +27,8 @@ public class Comp47910Application {
     return new HiddenHttpMethodFilter();
   }
 
-  @Autowired
-  private BCryptPasswordEncoder passwordEncoder;
-
   @Bean
-  public CommandLineRunner createBaseUsers(UserRepository userRepository) {
+  public CommandLineRunner createBaseUsers(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
     return args -> {
       String adminUsername = "admin";
       if (userRepository.findByUsername(adminUsername).isEmpty()) {

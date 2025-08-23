@@ -30,11 +30,12 @@ public class SecurityConfig {
             // Configure authorization
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/css/**", "/js/**", "/images/**", "/.well-known/**").permitAll()
-                    .requestMatchers("/register", "/", "/books").permitAll()
+                    .requestMatchers("/", "/register", "/books", "/authors").permitAll()
                     .anyRequest().authenticated()
             )
             .formLogin(form -> form
                     .loginPage("/")
+                    .failureUrl("/?error")
                     .defaultSuccessUrl("/books", true)
                     .permitAll()
             )
@@ -61,8 +62,8 @@ public class SecurityConfig {
             .xssProtection(HeadersConfigurer.XXssConfig::disable)
             .contentSecurityPolicy(csp -> csp.policyDirectives(
                     "default-src 'self'; " +
-                            "script-src 'self' 'unsafe-inline'; " +
-                            "style-src 'self' 'unsafe-inline'; " +
+                            "script-src 'self'; " +
+                            "style-src 'self'; " +
                             "img-src 'self' data:; " +
                             "font-src 'self';"
             ))

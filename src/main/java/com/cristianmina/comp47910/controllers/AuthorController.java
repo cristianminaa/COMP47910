@@ -7,7 +7,6 @@ import com.cristianmina.comp47910.repository.AuthorRepository;
 import com.cristianmina.comp47910.repository.BookRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -20,14 +19,16 @@ import java.util.List;
 
 @Controller
 public class AuthorController {
-  @Autowired
-  private AuthorRepository authorRepository;
-  @Autowired
-  private BookRepository bookRepository;
+  private final AuthorRepository authorRepository;
+  private final BookRepository bookRepository;
   private static final Logger logger = LoggerFactory.getLogger(AuthorController.class);
 
+  public AuthorController(AuthorRepository authorRepository, BookRepository bookRepository) {
+    this.authorRepository = authorRepository;
+    this.bookRepository = bookRepository;
+  }
+
   // Get All Authors
-  @PreAuthorize("isAuthenticated()")
   @GetMapping("/authors")
   public String getAllAuthors(Model model) {
     List<Author> listAuthors = authorRepository.findAll();
@@ -46,7 +47,7 @@ public class AuthorController {
 
   // Create a New Author
   @PreAuthorize("isAuthenticated()")
-  @PostMapping("/authors")
+  @PostMapping("/addAuthor")
   @Transactional(rollbackFor = Exception.class)
   public String newAuthor(@ModelAttribute("author") Author author,
                           @RequestParam(value = "books", required = false) List<Long> bookIds,
@@ -80,7 +81,7 @@ public class AuthorController {
 
   // Update an Existing Author
   @PreAuthorize("isAuthenticated()")
-  @PutMapping("/authors")
+  @PutMapping("/editAuthor")
   @Transactional(rollbackFor = Exception.class)
   public String updateAuthor(@ModelAttribute("author") Author author,
                              @RequestParam(value = "books", required = false) List<Long> bookIds,

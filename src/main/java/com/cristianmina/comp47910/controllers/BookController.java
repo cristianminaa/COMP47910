@@ -8,7 +8,6 @@ import com.cristianmina.comp47910.repository.BookRepository;
 import com.cristianmina.comp47910.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -22,13 +21,16 @@ import java.util.List;
 
 @Controller
 public class BookController {
-  @Autowired
-  private BookRepository bookRepository;
-  @Autowired
-  private UserRepository userRepository;
-  @Autowired
-  private AuthorRepository authorRepository;
+  private final BookRepository bookRepository;
+  private final UserRepository userRepository;
+  private final AuthorRepository authorRepository;
   private static final Logger logger = LoggerFactory.getLogger(BookController.class);
+
+  public BookController(BookRepository bookRepository, UserRepository userRepository, AuthorRepository authorRepository) {
+    this.bookRepository = bookRepository;
+    this.userRepository = userRepository;
+    this.authorRepository = authorRepository;
+  }
 
   // Show All Books
   @GetMapping({"/books"})

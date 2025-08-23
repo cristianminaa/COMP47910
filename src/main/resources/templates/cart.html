@@ -22,6 +22,11 @@
   </div>
 </nav>
 
+<!-- Error Messages -->
+<div th:if="${error}" class="alert alert-error">
+  <p th:text="${error}"></p>
+</div>
+
 <h1 th:unless="${booksInCart.size() <= 0}">Shopping Cart</h1>
 <h1 th:if="${booksInCart.size() <= 0}">Empty Shopping Cart</h1>
 <h2 th:if="${booksInCart.size() <= 0}">Add some books to get started.</h2>

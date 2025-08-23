@@ -8,7 +8,6 @@ import com.cristianmina.comp47910.security.RateLimitingService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,25 +21,31 @@ import java.time.LocalDate;
 @Controller
 public class AuthController {
 
-  @Autowired
-  private UserRepository userRepository;
-  @Autowired
-  private BCryptPasswordEncoder passwordEncoder;
-  @Autowired
-  private PasswordValidator passwordValidator;
-  @Autowired
-  private RateLimitingService rateLimitingService;
+  private final UserRepository userRepository;
+  private final BCryptPasswordEncoder passwordEncoder;
+  private final PasswordValidator passwordValidator;
+  private final RateLimitingService rateLimitingService;
   private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
+  public AuthController(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder,
+                        PasswordValidator passwordValidator, RateLimitingService rateLimitingService) {
+    this.userRepository = userRepository;
+    this.passwordEncoder = passwordEncoder;
+    this.passwordValidator = passwordValidator;
+    this.rateLimitingService = rateLimitingService;
+  }
+
   @GetMapping("/")
-  public String showLoginForm() {
+  public String index(@RequestParam(value = "error", required = false) String error, Model model) {
+    if (error != null) {
+      model.addAttribute("error", "Invalid username or password.");
+    }
     return "index";
   }
 
 
   @GetMapping("/register")
-  public String showRegisterForm(Model model) {
-    model.addAttribute("user", new User());
+  public String showRegisterForm() {
     return "register";
   }
 
