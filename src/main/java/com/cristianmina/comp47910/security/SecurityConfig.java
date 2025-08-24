@@ -1,7 +1,13 @@
 package com.cristianmina.comp47910.security;
 
+import com.cristianmina.comp47910.authentication.CustomAuthenticationProvider;
+import com.cristianmina.comp47910.authentication.CustomWebAuthenticationDetailsSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -17,9 +23,17 @@ import org.springframework.security.web.header.writers.XXssProtectionHeaderWrite
 @EnableWebSecurity
 public class SecurityConfig {
 
+  @Autowired
+  private CustomUserDetailsService customUserDetailsService;
+
   @Bean
   public BCryptPasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder(12);
+  }
+
+  @Bean
+  public CustomWebAuthenticationDetailsSource authenticationDetailsSource() {
+    return new CustomWebAuthenticationDetailsSource();
   }
 
   @Bean
@@ -38,6 +52,7 @@ public class SecurityConfig {
                     .loginPage("/")
                     .failureUrl("/?error")
                     .defaultSuccessUrl("/books", true)
+                    .authenticationDetailsSource(authenticationDetailsSource())
                     .permitAll()
             )
             .logout(logout -> logout
@@ -65,7 +80,7 @@ public class SecurityConfig {
                     "default-src 'self'; " +
                             "script-src 'self'; " +
                             "style-src 'self'; " +
-                            "img-src 'self' data:; " +
+                            "img-src 'self' data: https://quickchart.io; " +
                             "font-src 'self';"
             ))
             .httpStrictTransportSecurity(hsts -> hsts
@@ -75,6 +90,22 @@ public class SecurityConfig {
             )
     );
     return http.build();
+  }
+
+  @Bean
+  public DaoAuthenticationProvider authProvider() {
+    CustomAuthenticationProvider authProvider = new CustomAuthenticationProvider();
+    authProvider.setUserDetailsService(customUserDetailsService);
+    authProvider.setPasswordEncoder(passwordEncoder());
+    return authProvider;
+  }
+
+  @Bean
+  public AuthenticationManager authenticationManager(HttpSecurity http,
+                                                     DaoAuthenticationProvider authProvider) throws Exception {
+    return http.getSharedObject(AuthenticationManagerBuilder.class)
+            .authenticationProvider(authProvider())
+            .build();
   }
 
 }

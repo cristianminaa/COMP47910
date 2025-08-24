@@ -48,6 +48,8 @@ public class User implements UserDetails {
   private String username;
   @NotBlank
   private String password;
+  private boolean isUsing2FA;
+  private String secret;
 
   @ElementCollection(fetch = FetchType.EAGER)
   @CollectionTable(name = "user_cart", joinColumns = @JoinColumn(name = "user_id"))
@@ -162,6 +164,22 @@ public class User implements UserDetails {
     return cart;
   }
 
+  public boolean isUsing2FA() {
+    return isUsing2FA;
+  }
+
+  public void setUsing2FA(boolean using2FA) {
+    isUsing2FA = using2FA;
+  }
+
+  public String getSecret() {
+    return secret;
+  }
+
+  public void setSecret(String secret) {
+    this.secret = secret;
+  }
+
   public void setCart(Map<Book, Integer> cart) {
     this.cart = cart;
   }
@@ -175,7 +193,7 @@ public class User implements UserDetails {
     if (quantity < 0) {
       throw new IllegalArgumentException("Quantity cannot be negative");
     }
-    
+
     if (quantity > 99) {
       throw new IllegalArgumentException("Cannot add more than 99 items");
     }

@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 @Component
 public class PasswordValidator {
   private static final int MIN_LENGTH = 12;
-  private static final String PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?])(?=\\S+$).{12,}$";
+  private static final String PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?])(?=\\S+$).{12,}$";
   private final Pattern pattern = Pattern.compile(PASSWORD_PATTERN);
 
   public boolean validate(String password, String username) {

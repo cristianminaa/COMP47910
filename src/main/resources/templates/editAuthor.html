@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
   <meta charset="UTF-8">
-  <title th:text="'Editing author: ' + ${author.getFullName()}">Books Store Application</title>
+  <title>Edit Author - Books Store Application</title>
   <link rel="icon" type="image/png" th:href="@{/icons8-library-96.png}"/>
   <link rel="stylesheet" th:href="@{/css/main.css}"/>
   <link rel="stylesheet" th:href="@{/css/addedit.css}"/>
@@ -37,8 +37,16 @@
 <h1>Edit Author</h1>
 
 <div class="center">
-  <form th:action="@{/editAuthor}" method="post" th:object="${author}">
+  <form th:action="@{/editAuthor}" method="post" th:object="${authorUpdate}">
     <input type="hidden" name="_method" value="put"/>
+
+    <!-- Global form errors -->
+    <div th:if="${#fields.hasGlobalErrors()}" class="error-message">
+      <ul>
+        <li th:each="err : ${#fields.globalErrors()}" th:text="${err}"></li>
+      </ul>
+    </div>
+
     <table>
 
       <input type="hidden" th:field="*{id}"/>
@@ -46,15 +54,23 @@
       <tr>
         <th>First Name:</th>
         <td><label>
-          <input type="text" th:field="*{firstName}"/>
-        </label></td>
+          <input type="text" th:field="*{firstName}"
+                 th:class="${#fields.hasErrors('firstName')} ? 'error' : ''"
+                 maxlength="50" pattern="^[a-zA-Z\s\-.']+" required/>
+        </label>
+          <br><span th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}" class="field-error"></span>
+        </td>
       </tr>
 
       <tr>
         <th>Last Name:</th>
         <td><label>
-          <input type="text" th:field="*{lastName}"/>
-        </label></td>
+          <input type="text" th:field="*{lastName}"
+                 th:class="${#fields.hasErrors('lastName')} ? 'error' : ''"
+                 maxlength="50" pattern="^[a-zA-Z\s\-.']+" required/>
+        </label>
+          <br><span th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}" class="field-error"></span>
+        </td>
       </tr>
 
       <tr>
@@ -66,14 +82,15 @@
         <th>Books:</th>
         <td>
           <label>
-            <select th:field="*{books}" multiple size="6" class="books-select">
+            <select th:field="*{bookIds}" multiple size="6" class="books-select">
               <option th:each="book : ${listBooks}"
                       th:value="${book.id}"
                       th:text="${book.title}"></option>
             </select>
           </label>
+          <small>Hold CTRL (CMD on macOS) to select multiple books. Maximum 50 books allowed.</small>
+          <br><span th:if="${#fields.hasErrors('bookIds')}" th:errors="*{bookIds}" class="field-error"></span>
         </td>
-        <small>Hold CTRL (CMD on macOS) to select multiple books.</small>
       </tr>
 
       <tr>

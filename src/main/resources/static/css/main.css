@@ -105,6 +105,33 @@ body {
     grid-column: 1 / -1;
 }
 
+.field-error {
+    color: #e74c3c;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: block;
+    margin-top: 0.25rem;
+}
+
+input.error, select.error {
+    border-color: #e74c3c !important;
+    background-color: #fdf2f2 !important;
+}
+
+@media (prefers-color-scheme: dark) {
+    .error-message {
+        background-color: #2d1b1b;
+        border-color: #c0392b;
+        color: #e74c3c;
+    }
+
+    input.error, select.error {
+        background-color: #2d1b1b !important;
+        border-color: #c0392b !important;
+        color: #e74c3c !important;
+    }
+}
+
 @media (prefers-color-scheme: dark) {
     :root {
         --bg-color: #121212;
@@ -176,7 +203,7 @@ body {
     background-color: var(--form-bg, #222);
     color: var(--text-color, #fff);
     border: 1px solid var(--input-border, #444);
-    border-radius: 4px;
+    border-radius: 8px;
     padding: 8px;
     font-size: 1rem;
     transition: background 0.2s, color 0.2s, border 0.2s;
@@ -184,7 +211,6 @@ body {
 
 .books-select:focus {
     outline: none;
-    border-color: var(--button-hover, #888);
     background-color: var(--form-bg, #1a1a1a);
 }
 

@@ -9,47 +9,89 @@
 </head>
 <body>
 <div class="register-wrapper">
-  <form class="register-form" th:action="@{/register}" method="post">
+  <form class="register-form" th:action="@{/register}" method="post" th:object="${userRegistration}">
     <h2>Create Account</h2>
+
+    <!-- Global form errors -->
+    <div th:if="${#fields.hasGlobalErrors()}" class="error-message">
+      <ul>
+        <li th:each="err : ${#fields.globalErrors()}" th:text="${err}"></li>
+      </ul>
+    </div>
 
     <div class="form-group">
       <label for="name">First Name</label>
-      <input type="text" id="name" name="name" required/>
+      <input type="text" id="name" name="name" th:field="*{name}"
+             th:class="${#fields.hasErrors('name')} ? 'error' : ''"
+             maxlength="50" pattern="^[a-zA-Z\s\-.']+" required/>
+      <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="field-error"></span>
     </div>
 
     <div class="form-group">
       <label for="surname">Surname</label>
-      <input type="text" id="surname" name="surname" required/>
+      <input type="text" id="surname" name="surname" th:field="*{surname}"
+             th:class="${#fields.hasErrors('surname')} ? 'error' : ''"
+             maxlength="50" pattern="^[a-zA-Z\s\-.']+" required/>
+      <span th:if="${#fields.hasErrors('surname')}" th:errors="*{surname}" class="field-error"></span>
     </div>
 
     <div class="form-group">
       <label for="dateOfBirth">Date of Birth</label>
-      <input type="date" id="dateOfBirth" name="dateOfBirth" required/>
+      <input type="date" id="dateOfBirth" name="dateOfBirth" th:field="*{dateOfBirth}"
+             th:class="${#fields.hasErrors('dateOfBirth')} ? 'error' : ''"
+             th:max="${T(java.time.LocalDate).now()}" required/>
+      <span th:if="${#fields.hasErrors('dateOfBirth')}" th:errors="*{dateOfBirth}" class="field-error"></span>
     </div>
 
     <div class="form-group">
       <label for="address">Address</label>
-      <input type="text" id="address" name="address" required/>
+      <input type="text" id="address" name="address" th:field="*{address}"
+             th:class="${#fields.hasErrors('address')} ? 'error' : ''"
+             maxlength="200" required/>
+      <span th:if="${#fields.hasErrors('address')}" th:errors="*{address}" class="field-error"></span>
     </div>
 
     <div class="form-group">
       <label for="phoneNumber">Phone Number</label>
-      <input type="tel" id="phoneNumber" name="phoneNumber" required/>
+      <input type="tel" id="phoneNumber" name="phoneNumber" th:field="*{phoneNumber}"
+             th:class="${#fields.hasErrors('phoneNumber')} ? 'error' : ''"
+             pattern="^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$" required/>
+      <span th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}" class="field-error"></span>
     </div>
 
     <div class="form-group">
       <label for="emailAddress">Email Address</label>
-      <input type="email" id="emailAddress" name="emailAddress" required/>
+      <input type="email" id="emailAddress" name="emailAddress" th:field="*{emailAddress}"
+             th:class="${#fields.hasErrors('emailAddress')} ? 'error' : ''"
+             maxlength="100" required/>
+      <span th:if="${#fields.hasErrors('emailAddress')}" th:errors="*{emailAddress}" class="field-error"></span>
     </div>
 
     <div class="form-group">
       <label for="username">Username</label>
-      <input type="text" id="username" name="username" required/>
+      <input type="text" id="username" name="username" th:field="*{username}"
+             th:class="${#fields.hasErrors('username')} ? 'error' : ''"
+             minlength="3" maxlength="30" pattern="^[a-zA-Z0-9_]+$" required/>
+      <span th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="field-error"></span>
     </div>
 
     <div class="form-group">
       <label for="password">Password</label>
-      <input type="password" id="password" name="password" minlength="12" required/>
+      <input type="password" id="password" name="password" th:field="*{password}"
+             th:class="${#fields.hasErrors('password')} ? 'error' : ''"
+             minlength="12" required/>
+      <span th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="field-error"></span>
+      <small>Password must contain at least 12 characters, including uppercase, lowercase, number, and special
+        character</small>
+    </div>
+
+    <div class="form-group form-group-full">
+      <label for="using2FA" class="checkbox-label">
+        <input type="checkbox" id="using2FA" name="using2FA" class="styled-checkbox" th:field="*{using2FA}"
+               th:class="${#fields.hasErrors('using2FA')} ? 'error' : ''"/>
+        Enable two-factor authentication for enhanced security
+      </label>
+      <span th:if="${#fields.hasErrors('using2FA')}" th:errors="*{using2FA}" class="field-error"></span>
     </div>
 
     <button type="submit">Register</button>

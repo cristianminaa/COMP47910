@@ -39,15 +39,26 @@
 <div class="center">
   <form th:action="@{/books}"
         method="post"
-        th:object="${book}">
+        th:object="${bookCreate}">
+
+    <!-- Global form errors -->
+    <div th:if="${#fields.hasGlobalErrors()}" class="error-message">
+      <ul>
+        <li th:each="err : ${#fields.globalErrors()}" th:text="${err}"></li>
+      </ul>
+    </div>
+
     <table>
 
       <tr>
         <th>Title:</th>
         <td>
           <label>
-            <input type="text" th:field="*{title}" size="45"/>
+            <input type="text" th:field="*{title}" size="45"
+                   th:class="${#fields.hasErrors('title')} ? 'error' : ''"
+                   maxlength="100" pattern="^[a-zA-Z0-9\s\-.,!?'&quot;]+$" required/>
           </label>
+          <br><span th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="field-error"></span>
         </td>
       </tr>
 
@@ -58,22 +69,26 @@
         <th>Authors:</th>
         <td>
           <label>
-            <select th:field="*{authors}" multiple size="6" class="books-select">
+            <select th:field="*{authorIds}" multiple size="6" class="books-select">
               <option th:each="author : ${listAuthors}"
                       th:value="${author.id}"
                       th:text="${author.getFullName()}"></option>
             </select>
           </label>
+          <small>Hold CTRL (CMD on macOS) to select multiple authors. Maximum 50 authors allowed.</small>
+          <br><span th:if="${#fields.hasErrors('authorIds')}" th:errors="*{authorIds}" class="field-error"></span>
         </td>
-        <small>Hold CTRL (CMD on macOS) to select multiple authors.</small>
       </tr>
 
       <tr>
         <th>Year:</th>
         <td>
           <label>
-            <input type="number" th:field="*{year}" size="45"/>
+            <input type="number" th:field="*{year}" size="45"
+                   th:class="${#fields.hasErrors('year')} ? 'error' : ''"
+                   min="1000" max="2030" required/>
           </label>
+          <br><span th:if="${#fields.hasErrors('year')}" th:errors="*{year}" class="field-error"></span>
         </td>
       </tr>
 
@@ -81,8 +96,10 @@
         <th>Price:</th>
         <td>
           <label>
-            <input type="number" step="0.01" min="1" value="1" name="price" size="45"/>
+            <input type="number" th:field="*{price}" step="0.01" min="0.01" max="9999.99" size="45"
+                   th:class="${#fields.hasErrors('price')} ? 'error' : ''" required/>
           </label>
+          <br><span th:if="${#fields.hasErrors('price')}" th:errors="*{price}" class="field-error"></span>
         </td>
       </tr>
 
@@ -90,8 +107,12 @@
         <th>Number of Copies:</th>
         <td>
           <label>
-            <input type="number" th:field="*{numberOfCopies}" size="45"/>
+            <input type="number" th:field="*{numberOfCopies}" size="45"
+                   th:class="${#fields.hasErrors('numberOfCopies')} ? 'error' : ''"
+                   min="0" max="10000" required/>
           </label>
+          <br><span th:if="${#fields.hasErrors('numberOfCopies')}" th:errors="*{numberOfCopies}"
+                    class="field-error"></span>
         </td>
       </tr>
 
