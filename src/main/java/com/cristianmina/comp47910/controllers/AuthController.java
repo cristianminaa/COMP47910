@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import org.jboss.aerogear.security.otp.api.Base32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -80,7 +81,7 @@ public class AuthController {
     }
 
     // Validate password
-    if (!passwordValidator.validate(registrationDto.getPassword(), registrationDto.getUsername())) {
+    if (passwordValidator.validate(registrationDto.getPassword(), registrationDto.getUsername())) {
       result.rejectValue("password", "error.password",
               "Password must contain at least 12 characters, including uppercase, lowercase, number, and special character");
       logger.warn("Registration attempt from Client IP {} unsuccessful. Password does not meet complexity requirements.", clientIP);
@@ -119,6 +120,143 @@ public class AuthController {
       logger.error("Registration attempt from Client IP {} failed with exception: {}", clientIP, e.getMessage());
       result.reject("error.global", "Registration failed. Please try again.");
       return "register";
+    }
+  }
+
+  @GetMapping("/account")
+  public String showAccountPage(Model model, Authentication authentication) {
+    User currentUser = (User) authentication.getPrincipal();
+    UserDto userDto = dtoConversionService.convertUserEntityToDto(currentUser);
+    // Clear password for security - never send password to frontend
+    userDto.setPassword("");
+    model.addAttribute("user", userDto);
+    return "account";
+  }
+
+  @PostMapping("/account")
+  public String updateAccount(@ModelAttribute("user") UserDto userDto,
+                              @RequestParam("currentPassword") String currentPassword,
+                              @RequestParam(value = "newPassword", required = false) String newPassword,
+                              BindingResult result,
+                              Authentication authentication,
+                              RedirectAttributes redirectAttributes,
+                              HttpServletRequest request,
+                              Model model) {
+
+    String clientIP = request.getRemoteAddr();
+    logger.info("Account update attempt from Client IP: {}", clientIP);
+
+    User currentUser = (User) authentication.getPrincipal();
+
+    // Verify current password first (required for all account changes)
+    if (currentPassword == null || currentPassword.trim().isEmpty()) {
+      result.reject("error.global", "Current password is required to make changes.");
+      return "account";
+    }
+
+    if (!passwordValidator.verifyPassword(currentPassword, currentUser.getPassword())) {
+      result.reject("error.global", "Current password is incorrect.");
+      logger.warn("Account update attempt from Client IP {} unsuccessful. Incorrect current password.", clientIP);
+      return "account";
+    }
+
+    // Only validate fields that are being updated (not empty/null)
+    if (userDto.getName() != null && !userDto.getName().trim().isEmpty()) {
+      if (userDto.getName().length() > 50 || !userDto.getName().matches("^[a-zA-Z\\s\\-.']+$")) {
+        result.rejectValue("name", "error.name", "Invalid name format");
+      }
+    }
+
+    if (userDto.getSurname() != null && !userDto.getSurname().trim().isEmpty()) {
+      if (userDto.getSurname().length() > 50 || !userDto.getSurname().matches("^[a-zA-Z\\s\\-.']+$")) {
+        result.rejectValue("surname", "error.surname", "Invalid surname format");
+      }
+    }
+
+    if (userDto.getEmailAddress() != null && !userDto.getEmailAddress().trim().isEmpty()) {
+      if (!userDto.getEmailAddress().matches("^[A-Za-z0-9+_.-]+@(.+)$") || userDto.getEmailAddress().length() > 100) {
+        result.rejectValue("emailAddress", "error.email", "Invalid email format");
+      }
+    }
+
+    if (userDto.getPhoneNumber() != null && !userDto.getPhoneNumber().trim().isEmpty()) {
+      if (!userDto.getPhoneNumber().matches("^[+]?[(]?[0-9]{3}[)]?[-\\s.]?[0-9]{3}[-\\s.]?[0-9]{4,6}$")) {
+        result.rejectValue("phoneNumber", "error.phone", "Invalid phone number format");
+      }
+    }
+
+    if (userDto.getAddress() != null && !userDto.getAddress().trim().isEmpty()) {
+      if (userDto.getAddress().length() > 200) {
+        result.rejectValue("address", "error.address", "Address too long");
+      }
+    }
+
+    // Validate new password only if provided
+    if (newPassword != null && !newPassword.trim().isEmpty()) {
+      if (passwordValidator.validate(newPassword, currentUser.getUsername())) {
+        result.reject("error.global", "New password must contain at least 12 characters, including uppercase, lowercase, number, and special character");
+        logger.warn("Account update attempt from Client IP {} unsuccessful. New password does not meet complexity requirements.", clientIP);
+        return "account";
+      }
+    }
+
+    if (result.hasErrors()) {
+      logger.warn("Account update attempt from Client IP {} unsuccessful. Validation errors.", clientIP);
+      return "account";
+    }
+
+    try {
+      // Update only non-empty fields
+      if (userDto.getName() != null && !userDto.getName().trim().isEmpty()) {
+        currentUser.setName(userDto.getName().trim());
+      }
+      if (userDto.getSurname() != null && !userDto.getSurname().trim().isEmpty()) {
+        currentUser.setSurname(userDto.getSurname().trim());
+      }
+      if (userDto.getEmailAddress() != null && !userDto.getEmailAddress().trim().isEmpty()) {
+        currentUser.setEmailAddress(userDto.getEmailAddress().trim());
+      }
+      if (userDto.getAddress() != null && !userDto.getAddress().trim().isEmpty()) {
+        currentUser.setAddress(userDto.getAddress().trim());
+      }
+      if (userDto.getDateOfBirth() != null) {
+        currentUser.setDateOfBirth(userDto.getDateOfBirth());
+      }
+      if (userDto.getPhoneNumber() != null && !userDto.getPhoneNumber().trim().isEmpty()) {
+        currentUser.setPhoneNumber(userDto.getPhoneNumber().trim());
+      }
+
+      // Update password only if new password provided
+      if (newPassword != null && !newPassword.trim().isEmpty()) {
+        currentUser.setPassword(newPassword);
+      }
+
+      // Handle 2FA toggle
+      if (userDto.isUsing2FA() && !currentUser.isUsing2FA()) {
+        // Enabling 2FA - generate new secret and show QR code
+        userDto.setSecret(Base32.random());
+        currentUser.setSecret(userDto.getSecret());
+        currentUser.setUsing2FA(true);
+        userRepository.save(currentUser);
+        model.addAttribute("qr", userService.generateQRUrl(userDto));
+        logger.info("Account update from Client IP {} - 2FA enabled.", clientIP);
+        return "qrcode";
+      } else if (!userDto.isUsing2FA() && currentUser.isUsing2FA()) {
+        // Disabling 2FA
+        currentUser.setUsing2FA(false);
+        currentUser.setSecret(null);
+        logger.info("Account update from Client IP {} - 2FA disabled.", clientIP);
+      }
+
+      userRepository.save(currentUser);
+      redirectAttributes.addFlashAttribute("message", "Account updated successfully!");
+      logger.info("Account update from Client IP {} successful.", clientIP);
+      return "redirect:/account";
+
+    } catch (Exception e) {
+      logger.error("Account update from Client IP {} failed with exception: {}", clientIP, e.getMessage());
+      result.reject("error.global", "Account update failed. Please try again.");
+      return "account";
     }
   }
 

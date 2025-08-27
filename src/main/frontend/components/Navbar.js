@@ -25,6 +25,11 @@ const Navbar = ({ userRole, isAuthenticated, csrfToken }) => {
               <button className="navbar-button" type="submit">Cart</button>
             </form>
           )}
+          {isAuthenticated && (
+            <form action="/account" method="get">
+              <button className="navbar-button" type="submit">Account</button>
+            </form>
+          )}
           {isAuthenticated ? (
             <form action="/logout" method="post">
               <input type="hidden" name="_csrf" value={csrfToken} />

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Account Settings</title>
+  <link rel="icon" type="image/png" th:href="@{/icons8-library-96.png}"/>
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+  <link rel="stylesheet" th:href="@{/css/index.css}"/>
+  <link rel="stylesheet" th:href="@{/css/addedit.css}"/>
+</head>
+<body>
+
+<div id="navbar-root"
+     th:data-user-role="${#authorization.expression('hasRole(''ADMIN'')') ? 'ADMIN' : (#authorization.expression('hasRole(''USER'')') ? 'USER' : 'GUEST')}"
+     th:data-is-authenticated="${#authorization.expression('isAuthenticated()')}"
+     th:data-csrf-token="${_csrf.token}">
+</div>
+
+<div class="register-wrapper">
+  <form class="register-form" th:action="@{/account}" method="post" th:object="${user}">
+    <h2>Account Settings</h2>
+
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+    <div th:if="${#fields.hasGlobalErrors()}" class="error-message">
+      <ul>
+        <li th:each="err : ${#fields.globalErrors()}" th:text="${err}"></li>
+      </ul>
+    </div>
+
+    <div th:if="${message}" class="success-message" th:text="${message}"></div>
+
+    <div class="form-group">
+      <label for="name">Name</label>
+      <input type="text" id="name" th:field="*{name}"
+             th:class="${#fields.hasErrors('name')} ? 'error' : ''"
+             maxlength="50" pattern="^[a-zA-Z\s\-.']+$" placeholder="Leave empty to keep current"/>
+      <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="field-error"></span>
+    </div>
+
+    <div class="form-group">
+      <label for="surname">Surname</label>
+      <input type="text" id="surname" th:field="*{surname}"
+             th:class="${#fields.hasErrors('surname')} ? 'error' : ''"
+             maxlength="50" pattern="^[a-zA-Z\s\-.']+$" placeholder="Leave empty to keep current"/>
+      <span th:if="${#fields.hasErrors('surname')}" th:errors="*{surname}" class="field-error"></span>
+    </div>
+
+    <div class="form-group">
+      <label for="emailAddress">Email</label>
+      <input type="email" id="emailAddress" th:field="*{emailAddress}"
+             th:class="${#fields.hasErrors('emailAddress')} ? 'error' : ''"
+             maxlength="100" placeholder="Leave empty to keep current"/>
+      <span th:if="${#fields.hasErrors('emailAddress')}" th:errors="*{emailAddress}" class="field-error"></span>
+    </div>
+
+    <div class="form-group">
+      <label for="phoneNumber">Phone Number</label>
+      <input type="tel" id="phoneNumber" th:field="*{phoneNumber}"
+             th:class="${#fields.hasErrors('phoneNumber')} ? 'error' : ''"
+             placeholder="Leave empty to keep current"/>
+      <span th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}" class="field-error"></span>
+    </div>
+
+    <div class="form-group">
+      <label for="address">Address</label>
+      <input type="text" id="address" th:field="*{address}"
+             th:class="${#fields.hasErrors('address')} ? 'error' : ''"
+             maxlength="200" placeholder="Leave empty to keep current"/>
+      <span th:if="${#fields.hasErrors('address')}" th:errors="*{address}" class="field-error"></span>
+    </div>
+
+    <div class="form-group">
+      <label for="dateOfBirth">Date of Birth</label>
+      <input type="date" id="dateOfBirth" th:field="*{dateOfBirth}"
+             th:class="${#fields.hasErrors('dateOfBirth')} ? 'error' : ''"/>
+      <span th:if="${#fields.hasErrors('dateOfBirth')}" th:errors="*{dateOfBirth}" class="field-error"></span>
+    </div>
+
+    <div class="form-group">
+      <label for="newPassword">New Password</label>
+      <input type="password" id="newPassword" name="newPassword"
+             placeholder="Leave empty to keep current password"/>
+      <small>Must contain at least 12 characters, including uppercase, lowercase, number, and special character</small>
+    </div>
+
+    <div class="form-group">
+      <label for="currentPassword" style="color: #e74c3c;">Current Password *</label>
+      <input type="password" id="currentPassword" name="currentPassword" required
+             placeholder="Enter your current password to confirm changes"/>
+      <small style="color: #e74c3c;">Required to confirm any changes</small>
+    </div>
+
+    <div class="form-group checkbox-group">
+      <label class="checkbox-label">
+        <input type="checkbox" th:field="*{using2FA}"/>
+        <span class="checkbox-text">Enable Two-Factor Authentication</span>
+      </label>
+      <small>Enable or disable two-factor authentication for your account</small>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="update-btn">Update Account</button>
+    </div>
+  </form>
+</div>
+
+<div id="footer-root"></div>
+
+<script th:src="@{/js/bundle.js}"></script>
+</body>
+</html>

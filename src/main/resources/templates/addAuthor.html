@@ -11,7 +11,7 @@
 <body>
 
 <div id="navbar-root" 
-     th:data-user-role="${#authorization.expression('hasRole(''ADMIN'')') ? 'ADMIN' : (#authorization.expression('hasRole(''USER'')') ? 'USER' : 'GUEST')}">
+     th:data-user-role="${#authorization.expression('hasRole(''ADMIN'')') ? 'ADMIN' : (#authorization.expression('hasRole(''USER'')') ? 'USER' : 'GUEST')}"
      th:data-is-authenticated="${#authorization.expression('isAuthenticated()')}"
      th:data-csrf-token="${_csrf.token}">
 </div>
