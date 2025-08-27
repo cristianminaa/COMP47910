@@ -8,6 +8,12 @@
   <link rel="stylesheet" th:href="@{/css/index.css}"/>
 </head>
 <body>
+
+<div id="navbar-root" 
+     th:data-user-role="${#authorization.expression('hasRole(''ADMIN'')') ? 'ADMIN' : (#authorization.expression('hasRole(''USER'')') ? 'USER' : 'GUEST')}"
+     th:data-is-authenticated="${#authorization.expression('isAuthenticated()')}"
+     th:data-csrf-token="${_csrf != null ? _csrf.token : ''}">
+</div>
 <div class="register-wrapper">
   <form class="register-form" th:action="@{/register}" method="post" th:object="${userRegistration}">
     <h2>Create Account</h2>
@@ -102,16 +108,9 @@
   </form>
 </div>
 
-<footer class="page-footer">
-  <div class="footer-container">
-    <p class="footer-text">© 2025 Bookshop by Cristian Mina. All rights reserved by UCD.</p>
-    <div class="footer-links">
-      <a href="https://www.ucd.ie">UCD</a>
-      <a href="mailto:cristian-daniel.mina@ucdconnect.ie">Contact</a>
-    </div>
-  </div>
-</footer>
+<div id="footer-root"></div>
 
+<script th:src="@{/js/bundle.js}"></script>
 </body>
 
 </html>

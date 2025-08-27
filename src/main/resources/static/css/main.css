@@ -132,6 +132,18 @@ input.error, select.error {
     }
 }
 
+/* Default light mode variables */
+:root {
+    --bg-color: #f8f9fa;
+    --text-color: #212529;
+    --link-color: #007bff;
+    --link-hover: #0056b3;
+    --form-bg: #ffffff;
+    --input-border: #ced4da;
+    --button-bg: #007bff;
+    --button-hover: #0056b3;
+}
+
 @media (prefers-color-scheme: dark) {
     :root {
         --bg-color: #121212;
@@ -152,6 +164,22 @@ input.error, select.error {
     padding: 1.5rem 2rem;
     margin-top: auto;
     box-shadow: 0 -1px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Fix footer positioning for React components */
+#footer-root {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+#footer-root .page-footer {
+    margin-top: 0;
+}
+
+/* Ensure navbar root doesn't interfere with layout */
+#navbar-root {
+    flex-shrink: 0;
 }
 
 .footer-container {

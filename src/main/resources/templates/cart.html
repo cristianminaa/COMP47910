@@ -10,17 +10,12 @@
 </head>
 <body>
 
-<nav class="navbar">
-  <div class="navbar-container">
-    <a class="navbar-logo" th:href="@{/books}">Bookshop</a>
-    <div class="navbar-actions">
-      <form th:if="${#authorization.expression('isAuthenticated()')}" th:action="@{/logout}" method="post">
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-        <button class="navbar-button" type="submit">Log out</button>
-      </form>
-    </div>
-  </div>
-</nav>
+<div id="navbar-root" 
+     th:data-user-role="${#authorization.expression('hasRole(''ADMIN'')') ? 'ADMIN' : (#authorization.expression('hasRole(''USER'')') ? 'USER' : 'GUEST')}">
+     th:data-is-authenticated="${#authorization.expression('isAuthenticated()')}"
+     th:data-csrf-token="${_csrf.token}">
+</div>
+
 
 <h1 th:unless="${booksInCart.size() <= 0}">Shopping Cart</h1>
 <h1 th:if="${booksInCart.size() <= 0}">Empty Shopping Cart</h1>
@@ -121,16 +116,9 @@
 
 </div>
 
-<footer class="page-footer">
-  <div class="footer-container">
-    <p class="footer-text">© 2025 Bookshop by Cristian Mina. All rights reserved by UCD.</p>
-    <div class="footer-links">
-      <a href="https://www.ucd.ie">UCD</a>
-      <a href="mailto:cristian-daniel.mina@ucdconnect.ie">Contact</a>
-    </div>
-  </div>
-</footer>
+<div id="footer-root"></div>
 
 
+<script th:src="@{/js/bundle.js}"></script>
 </body>
 </html>
