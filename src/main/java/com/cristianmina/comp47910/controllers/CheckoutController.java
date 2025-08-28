@@ -49,7 +49,7 @@ public class CheckoutController {
             .mapToDouble(entry -> {
               Book currentBook = bookRepository.findById(entry.getKey().getId()).orElse(null);
               if (currentBook == null) return 0;
-              return currentBook.getPrice() * entry.getValue();
+              return currentBook.getPrice().doubleValue() * entry.getValue();
             })
             .sum();
     Map<Book, Integer> booksInCart = user.getCart();
@@ -110,7 +110,7 @@ public class CheckoutController {
               .orElseThrow(() -> new BookNotFoundException(entry.getKey().getId()));
 
       int quantity = entry.getValue();
-      double itemTotal = book.getPrice() * quantity;
+      double itemTotal = book.getPrice().doubleValue() * quantity;
       totalPrice += itemTotal;
 
       // Log individual item details
@@ -170,7 +170,7 @@ public class CheckoutController {
     }
 
     String cleanCardNumber = cardNumber.replaceAll("\\s+", "");
-    if (!Pattern.matches("\\d{16,19}", cleanCardNumber)) {
+    if (!Pattern.matches("\\d{16,19}", cleanCardNumber) || !isValidCardNumber(cleanCardNumber)) {
       throw new IllegalArgumentException("Invalid card number format");
     }
 
@@ -200,5 +200,21 @@ public class CheckoutController {
       logger.debug("No request context available");
     }
     return "unknown";
+  }
+
+  private boolean isValidCardNumber(String cardNumber) {
+    // Implement Luhn algorithm
+    int sum = 0;
+    boolean alternate = false;
+    for (int i = cardNumber.length() - 1; i >= 0; i--) {
+      int n = Integer.parseInt(cardNumber.substring(i, i + 1));
+      if (alternate) {
+        n *= 2;
+        if (n > 9) n = (n % 10) + 1;
+      }
+      sum += n;
+      alternate = !alternate;
+    }
+    return (sum % 10 == 0);
   }
 }

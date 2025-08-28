@@ -1,5 +1,7 @@
 package com.cristianmina.comp47910.dto;
 
+import com.cristianmina.comp47910.model.Author;
+import com.cristianmina.comp47910.model.Book;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -55,20 +57,20 @@ public class AuthorCreateDto {
   }
 
   // Conversion methods
-  public static AuthorCreateDto fromEntity(com.cristianmina.comp47910.model.Author author) {
+  public static AuthorCreateDto fromEntity(Author author) {
     AuthorCreateDto dto = new AuthorCreateDto();
     dto.setFirstName(author.getFirstName());
     dto.setLastName(author.getLastName());
     if (author.getBooks() != null) {
       dto.setBookIds(author.getBooks().stream()
-        .map(com.cristianmina.comp47910.model.Book::getId)
-        .toList());
+              .map(Book::getId)
+              .toList());
     }
     return dto;
   }
 
-  public com.cristianmina.comp47910.model.Author toEntity() {
-    com.cristianmina.comp47910.model.Author author = new com.cristianmina.comp47910.model.Author();
+  public Author toEntity() {
+    Author author = new Author();
     author.setFirstName(this.firstName);
     author.setLastName(this.lastName);
     return author;

@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,6 +46,7 @@ public class CartController {
 
   // Add Book to Cart
   @PreAuthorize("hasRole('USER')")
+  @Transactional(isolation = Isolation.SERIALIZABLE)
   @PostMapping("/cart/{id}")
   public String addToCart(@PathVariable(value = "id") Long bookId,
                           @RequestParam(defaultValue = "1") @Min(1) @Max(99) int quantity,
@@ -60,23 +63,23 @@ public class CartController {
     int currentCartQuantity = user.getCart().getOrDefault(book, 0);
     int requestedTotal = currentCartQuantity + quantity;
     int availableStock = book.getNumberOfCopies();
-    
+
     if (requestedTotal > availableStock) {
       // Adjust cart quantity to maximum available stock
       int adjustedQuantity = availableStock - currentCartQuantity;
       if (adjustedQuantity > 0) {
         user.addToCart(book, adjustedQuantity);
-        logger.info("Cart quantity adjusted - Book ID: {}, Requested: {}, Current in cart: {}, Stock: {}, Added: {}, Final cart quantity: {}, User: {}", 
-          bookId, quantity, currentCartQuantity, availableStock, adjustedQuantity, availableStock, authentication.getName());
+        logger.info("Cart quantity adjusted - Book ID: {}, Requested: {}, Current in cart: {}, Stock: {}, Added: {}, Final cart quantity: {}, User: {}",
+                bookId, quantity, currentCartQuantity, availableStock, adjustedQuantity, availableStock, authentication.getName());
       } else {
-        logger.info("No items added to cart - Book ID: {} already at maximum stock quantity {} in cart, User: {}", 
-          bookId, currentCartQuantity, authentication.getName());
+        logger.info("No items added to cart - Book ID: {} already at maximum stock quantity {} in cart, User: {}",
+                bookId, currentCartQuantity, authentication.getName());
       }
     } else {
       user.addToCart(book, quantity);
       logger.info("Adding to cart - Book ID: {}, Quantity: {}, User: {}", bookId, quantity, authentication.getName());
     }
-    
+
     userRepository.save(user);
     return "redirect:/cart";
   }

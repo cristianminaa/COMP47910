@@ -93,14 +93,14 @@ public class AuthController {
 
     // Check username already exists
     if (userRepository.findByUsername(registrationDto.getUsername()).isPresent()) {
-      result.rejectValue("username", "error.username", "Username already exists");
+      result.reject("registrationFailed", "Registration failed. Please try again.");
       logger.warn("Registration attempt from Client IP {} unsuccessful. Username already exists.", clientIP);
       return "register";
     }
 
     // Check email already exists
     if (userRepository.findByEmailAddress(registrationDto.getEmailAddress()).isPresent()) {
-      result.rejectValue("emailAddress", "error.email", "Email address already exists");
+      result.reject("registrationFailed", "Registration failed. Please try again.");
       logger.warn("Registration attempt from Client IP {} unsuccessful. Email already exists.", clientIP);
       return "register";
     }

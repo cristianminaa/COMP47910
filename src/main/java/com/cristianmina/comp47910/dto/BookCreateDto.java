@@ -1,7 +1,10 @@
 package com.cristianmina.comp47910.dto;
 
+import com.cristianmina.comp47910.model.Author;
+import com.cristianmina.comp47910.model.Book;
 import jakarta.validation.constraints.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class BookCreateDto {
@@ -14,7 +17,7 @@ public class BookCreateDto {
   @NotNull(message = "Price is required")
   @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
   @DecimalMax(value = "9999.99", message = "Price cannot exceed 9999.99")
-  private Double price;
+  private BigDecimal price;
 
   @Min(value = 1000, message = "Year must be at least 1000")
   @Max(value = 2030, message = "Year cannot be in the future")
@@ -30,7 +33,7 @@ public class BookCreateDto {
   public BookCreateDto() {
   }
 
-  public BookCreateDto(String title, Double price, Integer year, Integer numberOfCopies, List<Long> authorIds) {
+  public BookCreateDto(String title, BigDecimal price, Integer year, Integer numberOfCopies, List<Long> authorIds) {
     this.title = title;
     this.price = price;
     this.year = year;
@@ -46,11 +49,11 @@ public class BookCreateDto {
     this.title = title;
   }
 
-  public Double getPrice() {
+  public BigDecimal getPrice() {
     return price;
   }
 
-  public void setPrice(Double price) {
+  public void setPrice(BigDecimal price) {
     this.price = price;
   }
 
@@ -79,7 +82,7 @@ public class BookCreateDto {
   }
 
   // Conversion methods
-  public static BookCreateDto fromEntity(com.cristianmina.comp47910.model.Book book) {
+  public static BookCreateDto fromEntity(Book book) {
     BookCreateDto dto = new BookCreateDto();
     dto.setTitle(book.getTitle());
     dto.setPrice(book.getPrice());
@@ -87,14 +90,14 @@ public class BookCreateDto {
     dto.setNumberOfCopies(book.getNumberOfCopies());
     if (book.getAuthors() != null) {
       dto.setAuthorIds(book.getAuthors().stream()
-        .map(com.cristianmina.comp47910.model.Author::getId)
-        .toList());
+              .map(Author::getId)
+              .toList());
     }
     return dto;
   }
 
-  public com.cristianmina.comp47910.model.Book toEntity() {
-    com.cristianmina.comp47910.model.Book book = new com.cristianmina.comp47910.model.Book();
+  public Book toEntity() {
+    Book book = new Book();
     book.setTitle(this.title);
     book.setPrice(this.price);
     book.setYear(this.year);

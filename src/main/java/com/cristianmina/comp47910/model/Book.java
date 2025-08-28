@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,11 +31,12 @@ public class Book {
   private List<Author> authors;
 
   @NotNull
-  private Double price;
+  @Column(precision = 10, scale = 2)
+  private BigDecimal price;
 
   private int year;
   private int numberOfCopies;
-  
+
   @Version
   private Long version;
 
@@ -42,7 +44,7 @@ public class Book {
     super();
   }
 
-  public Book(Long id, String name, List<Author> authors, Double price, int year, int numberOfCopies) {
+  public Book(Long id, String name, List<Author> authors, BigDecimal price, int year, int numberOfCopies) {
     this.id = id;
     this.name = name;
     this.authors = authors;
@@ -61,10 +63,6 @@ public class Book {
 
   public void addAuthor(Author author) {
     this.authors.add(author);
-  }
-
-  public void removeAuthor(Author author) {
-    this.authors.remove(author);
   }
 
   public List<Author> getAuthors() {
@@ -87,11 +85,11 @@ public class Book {
     this.id = id;
   }
 
-  public Double getPrice() {
+  public BigDecimal getPrice() {
     return price;
   }
 
-  public void setPrice(Double price) {
+  public void setPrice(BigDecimal price) {
     this.price = price;
   }
 

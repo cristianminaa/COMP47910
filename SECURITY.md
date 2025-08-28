@@ -16,10 +16,11 @@ This document outlines the security vulnerabilities identified and the comprehen
 
 ### **A02:2021 - Cryptographic Failures**
 - ⚠️ **FIXED**: Removed hardcoded database password from `application.properties`
+- ⚠️ **FIXED**: 2FA secrets now encrypted at rest using AES-256-GCM
 - ✅ **Strong Password Hashing**: Using BCrypt with work factor 12
 - ✅ **Secure Session Cookies**: HTTP-only, secure, same-site strict
 - ✅ **SSL/HTTPS Configuration**: Environment-configurable SSL support
-- ✅ **2FA Implementation**: Time-based OTP with secure secret generation
+- ✅ **2FA Implementation**: Time-based OTP with secure secret generation and storage
 
 ### **A03:2021 - Injection**
 - ✅ **SQL Injection Prevention**: Using JPA/Hibernate with parameterized queries
@@ -256,7 +257,34 @@ Framework: Centralized audit service (enterprise expansion ready)
 - Proper expiration: Automatic cleanup
 ```
 
-#### **9. Business Logic Security & UX Improvements**
+#### **9. 2FA Secret Encryption at Rest (CryptoConverter.java)**
+```java
+// CRITICAL SECURITY FIX:
+// HIGH SEVERITY - CWE-256: Unprotected Storage of Credentials
+// OWASP A02:2021 - Cryptographic Failures
+
+// ENCRYPTION IMPLEMENTATION:
+- AES-256-GCM Authenticated Encryption: Industry-standard encryption with authentication
+- Unique IV per Operation: Each secret encrypted with random 96-bit IV for semantic security
+- Environment-based Key Management: Production keys from secure environment variables
+- JPA AttributeConverter Integration: Transparent encryption/decryption at persistence layer
+- Comprehensive Error Handling: Secure failure modes without information disclosure
+
+// SECURITY BENEFITS:
+- 2FA secrets encrypted at rest in database (previously plaintext)
+- Database breach cannot compromise 2FA secrets without encryption key
+- Authenticated encryption prevents tampering attacks
+- Each encrypted value cryptographically unique (semantic security)
+- Production-ready key management through environment variables
+
+// ATTACK PREVENTION:
+- Database Dump Analysis: Encrypted secrets unreadable without key
+- SQL Injection Impact: Even successful injection cannot read plaintext secrets
+- Insider Threats: Database administrators cannot access 2FA secrets
+- Backup Security: Database backups contain encrypted secrets only
+```
+
+#### **10. Business Logic Security & UX Improvements**
 ```java
 // CartController.java - Smart Cart Logic Security:
 - Inventory Validation: Prevents overselling beyond available stock
@@ -330,6 +358,9 @@ TIME_WINDOW_MINUTES=15
 
 # Cookies
 SECURE_COOKIES=true
+
+# 2FA Secret Encryption
+ENCRYPTION_KEY=your_256bit_base64_encoded_key
 ```
 
 ### **Production Deployment Checklist**

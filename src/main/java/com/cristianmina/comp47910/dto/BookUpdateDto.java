@@ -1,7 +1,10 @@
 package com.cristianmina.comp47910.dto;
 
+import com.cristianmina.comp47910.model.Author;
+import com.cristianmina.comp47910.model.Book;
 import jakarta.validation.constraints.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class BookUpdateDto {
@@ -18,7 +21,7 @@ public class BookUpdateDto {
   @NotNull(message = "Price is required")
   @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
   @DecimalMax(value = "9999.99", message = "Price cannot exceed 9999.99")
-  private Double price;
+  private BigDecimal price;
 
   @Min(value = 1000, message = "Year must be at least 1000")
   @Max(value = 2030, message = "Year cannot be in the future")
@@ -34,7 +37,7 @@ public class BookUpdateDto {
   public BookUpdateDto() {
   }
 
-  public BookUpdateDto(Long id, String title, Double price, Integer year, Integer numberOfCopies, List<Long> authorIds) {
+  public BookUpdateDto(Long id, String title, BigDecimal price, Integer year, Integer numberOfCopies, List<Long> authorIds) {
     this.id = id;
     this.title = title;
     this.price = price;
@@ -59,11 +62,11 @@ public class BookUpdateDto {
     this.title = title;
   }
 
-  public Double getPrice() {
+  public BigDecimal getPrice() {
     return price;
   }
 
-  public void setPrice(Double price) {
+  public void setPrice(BigDecimal price) {
     this.price = price;
   }
 
@@ -92,7 +95,7 @@ public class BookUpdateDto {
   }
 
   // Conversion methods
-  public static BookUpdateDto fromEntity(com.cristianmina.comp47910.model.Book book) {
+  public static BookUpdateDto fromEntity(Book book) {
     BookUpdateDto dto = new BookUpdateDto();
     dto.setId(book.getId());
     dto.setTitle(book.getTitle());
@@ -101,13 +104,13 @@ public class BookUpdateDto {
     dto.setNumberOfCopies(book.getNumberOfCopies());
     if (book.getAuthors() != null) {
       dto.setAuthorIds(book.getAuthors().stream()
-        .map(com.cristianmina.comp47910.model.Author::getId)
-        .toList());
+              .map(Author::getId)
+              .toList());
     }
     return dto;
   }
 
-  public void updateEntity(com.cristianmina.comp47910.model.Book book) {
+  public void updateEntity(Book book) {
     book.setTitle(this.title);
     book.setPrice(this.price);
     book.setYear(this.year);

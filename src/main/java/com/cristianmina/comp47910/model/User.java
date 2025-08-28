@@ -1,5 +1,6 @@
 package com.cristianmina.comp47910.model;
 
+import com.cristianmina.comp47910.security.CryptoConverter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -49,6 +50,8 @@ public class User implements UserDetails {
   @NotBlank
   private String password;
   private boolean isUsing2FA;
+  
+  @Convert(converter = CryptoConverter.class)
   private String secret;
 
   @ElementCollection(fetch = FetchType.EAGER)
