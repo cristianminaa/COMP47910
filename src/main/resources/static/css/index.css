@@ -113,9 +113,10 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    flex: 1;
     padding: 2rem;
     background-color: var(--bg-color);
+    box-sizing: border-box;
 }
 
 .register-form {
@@ -128,7 +129,7 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1.25rem 2rem;
-    align-items: start;
+    align-items: stretch;
 }
 
 .register-form h2 {
@@ -264,18 +265,20 @@ body {
 .qr-container {
     max-width: 450px !important;
     text-align: center;
+    grid-column: 1 / -1;
+    margin: 0 auto;
+    display: block;
 }
 
 .qr-instructions {
     font-size: 0.95rem;
     color: var(--text-color);
-    margin-bottom: 2rem;
     line-height: 1.5;
     opacity: 0.9;
 }
 
 .qr-code-wrapper {
-    margin: 2rem 0;
+    margin: 2rem auto;
     padding: 1.5rem;
     background-color: var(--bg-color);
     border-radius: 12px;
@@ -283,6 +286,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    width: fit-content;
 }
 
 .qr-code {
@@ -378,6 +382,7 @@ body {
     background: var(--button-bg) !important;
     color: white !important;
     border: none !important;
+    font-weight: 500 !important;
     transition: all 0.3s ease !important;
 }
 

@@ -5,6 +5,7 @@ import com.cristianmina.comp47910.model.User;
 import com.cristianmina.comp47910.repository.UserRepository;
 import com.cristianmina.comp47910.security.PasswordValidator;
 import com.cristianmina.comp47910.security.RateLimitingService;
+import com.cristianmina.comp47910.security.SecurityAuditService;
 import com.cristianmina.comp47910.service.DtoConversionService;
 import com.cristianmina.comp47910.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,16 +31,18 @@ public class AuthController {
   private final PasswordValidator passwordValidator;
   private final RateLimitingService rateLimitingService;
   private final DtoConversionService dtoConversionService;
+  private final SecurityAuditService securityAuditService;
   private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
   public AuthController(UserRepository userRepository, UserService userService,
                         PasswordValidator passwordValidator, RateLimitingService rateLimitingService,
-                        DtoConversionService dtoConversionService) {
+                        DtoConversionService dtoConversionService, SecurityAuditService securityAuditService) {
     this.userRepository = userRepository;
     this.userService = userService;
     this.passwordValidator = passwordValidator;
     this.rateLimitingService = rateLimitingService;
     this.dtoConversionService = dtoConversionService;
+    this.securityAuditService = securityAuditService;
   }
 
   @GetMapping("/")
@@ -113,6 +116,10 @@ public class AuthController {
       User user = dtoConversionService.convertUserDtoToEntity(registrationDto);
       userRepository.save(user);
 
+      // Security audit logging for new user registration
+      securityAuditService.logDataModification("CREATE", "users", user.getId().toString(),
+              registrationDto.getUsername(), clientIP, "none", "new user registered");
+
       redirectAttributes.addFlashAttribute("message", "Registration successful! Please log in.");
       logger.info("Registration attempt from Client IP {} successful.", clientIP);
       return "redirect:/";
@@ -140,8 +147,7 @@ public class AuthController {
                               BindingResult result,
                               Authentication authentication,
                               RedirectAttributes redirectAttributes,
-                              HttpServletRequest request,
-                              Model model) {
+                              HttpServletRequest request) {
 
     String clientIP = request.getRemoteAddr();
     logger.info("Account update attempt from Client IP: {}", clientIP);
@@ -233,14 +239,17 @@ public class AuthController {
 
       // Handle 2FA toggle
       if (userDto.isUsing2FA() && !currentUser.isUsing2FA()) {
-        // Enabling 2FA - generate new secret and show QR code
+        // Enabling 2FA - generate new secret and redirect with QR URL
         userDto.setSecret(Base32.random());
         currentUser.setSecret(userDto.getSecret());
         currentUser.setUsing2FA(true);
         userRepository.save(currentUser);
-        model.addAttribute("qr", userService.generateQRUrl(userDto));
+        String qrUrl = userService.generateQRUrl(userDto);
+        redirectAttributes.addFlashAttribute("message", "2FA enabled successfully! Please scan the QR code with your authenticator app.");
+        redirectAttributes.addFlashAttribute("qrUrl", qrUrl);
+        redirectAttributes.addFlashAttribute("show2FASetup", true);
         logger.info("Account update from Client IP {} - 2FA enabled.", clientIP);
-        return "qrcode";
+        return "redirect:/account";
       } else if (!userDto.isUsing2FA() && currentUser.isUsing2FA()) {
         // Disabling 2FA
         currentUser.setUsing2FA(false);

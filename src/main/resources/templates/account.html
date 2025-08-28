@@ -6,7 +6,6 @@
   <link rel="icon" type="image/png" th:href="@{/icons8-library-96.png}"/>
   <link rel="stylesheet" th:href="@{/css/main.css}"/>
   <link rel="stylesheet" th:href="@{/css/index.css}"/>
-  <link rel="stylesheet" th:href="@{/css/addedit.css}"/>
 </head>
 <body>
 
@@ -97,6 +96,21 @@
         <span class="checkbox-text">Enable Two-Factor Authentication</span>
       </label>
       <small>Enable or disable two-factor authentication for your account</small>
+      <!-- 2FA Setup QR Code Display -->
+      <div th:if="${show2FASetup}" class="qr-container">
+        <div class="qr-instructions">
+          <p>Please scan this QR code with your authenticator app (Google Authenticator, Authy, etc.) to complete the
+            setup.</p>
+        </div>
+        <div class="qr-code-wrapper">
+          <img th:src="${qrUrl}" alt="2FA QR Code" class="qr-code"/>
+        </div>
+        <div style="margin-top: 1rem;">
+          <small style="color: var(--text-color); opacity: 0.8;">
+            Save this QR code or make sure to scan it now. You won't see it again after leaving this page.
+          </small>
+        </div>
+      </div>
     </div>
 
     <div class="form-actions">

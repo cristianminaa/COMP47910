@@ -56,13 +56,27 @@ public class CartController {
     User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
     Book book = bookRepository.findById(bookId).orElseThrow(() -> new BookNotFoundException(bookId));
 
-    // Check enough stock available
-    if (book.getNumberOfCopies() < quantity) {
-      throw new IllegalStateException("Not enough copies available. Only " + book.getNumberOfCopies() + " in stock.");
+    // Smart cart quantity adjustment
+    int currentCartQuantity = user.getCart().getOrDefault(book, 0);
+    int requestedTotal = currentCartQuantity + quantity;
+    int availableStock = book.getNumberOfCopies();
+    
+    if (requestedTotal > availableStock) {
+      // Adjust cart quantity to maximum available stock
+      int adjustedQuantity = availableStock - currentCartQuantity;
+      if (adjustedQuantity > 0) {
+        user.addToCart(book, adjustedQuantity);
+        logger.info("Cart quantity adjusted - Book ID: {}, Requested: {}, Current in cart: {}, Stock: {}, Added: {}, Final cart quantity: {}, User: {}", 
+          bookId, quantity, currentCartQuantity, availableStock, adjustedQuantity, availableStock, authentication.getName());
+      } else {
+        logger.info("No items added to cart - Book ID: {} already at maximum stock quantity {} in cart, User: {}", 
+          bookId, currentCartQuantity, authentication.getName());
+      }
+    } else {
+      user.addToCart(book, quantity);
+      logger.info("Adding to cart - Book ID: {}, Quantity: {}, User: {}", bookId, quantity, authentication.getName());
     }
-
-    user.addToCart(book, quantity);
-    logger.info("Adding to cart - Book ID: {}, Quantity: {}, User: {}", bookId, quantity, authentication.getName());
+    
     userRepository.save(user);
     return "redirect:/cart";
   }
