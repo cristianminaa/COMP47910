@@ -183,9 +183,6 @@ public class User implements UserDetails {
     this.secret = secret;
   }
 
-  public void setCart(Map<Book, Integer> cart) {
-    this.cart = cart;
-  }
 
   public void addToCart(Book book, int quantity) {
     cart.merge(book, quantity, Integer::sum);

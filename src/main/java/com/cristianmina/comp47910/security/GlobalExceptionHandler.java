@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
   public String handleInsufficientStock(IllegalStateException ex, RedirectAttributes redirectAttributes) {
     logger.warn("Insufficient stock: {}", ex.getMessage());
     if (ex.getMessage().contains("Not enough copies")) {
-      redirectAttributes.addFlashAttribute("error", ex.getMessage());
+      redirectAttributes.addFlashAttribute("error", "Unable to complete checkout. Please try again.");
       return "redirect:/cart";
     }
     redirectAttributes.addFlashAttribute("error", "Unable to complete your request. Please try again.");

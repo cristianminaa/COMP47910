@@ -10,8 +10,8 @@ import com.cristianmina.comp47910.repository.BookRepository;
 import com.cristianmina.comp47910.repository.UserRepository;
 import com.cristianmina.comp47910.security.AuthorizationService;
 import com.cristianmina.comp47910.security.Utilities;
-import com.cristianmina.comp47910.service.DtoConversionService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,17 +32,14 @@ public class BookController {
   private final UserRepository userRepository;
   private final AuthorRepository authorRepository;
   private final AuthorizationService authorizationService;
-  private final DtoConversionService dtoConversionService;
   private static final Logger logger = LoggerFactory.getLogger(BookController.class);
 
-  public BookController(BookRepository bookRepository, UserRepository userRepository, 
-                       AuthorRepository authorRepository, AuthorizationService authorizationService,
-                       DtoConversionService dtoConversionService) {
+  public BookController(BookRepository bookRepository, UserRepository userRepository,
+                        AuthorRepository authorRepository, AuthorizationService authorizationService) {
     this.bookRepository = bookRepository;
     this.userRepository = userRepository;
     this.authorRepository = authorRepository;
     this.authorizationService = authorizationService;
-    this.dtoConversionService = dtoConversionService;
   }
 
   // Show All Books
@@ -70,7 +67,7 @@ public class BookController {
                         BindingResult result,
                         Authentication authentication,
                         Model model) {
-    
+
     if (result.hasErrors()) {
       model.addAttribute("listAuthors", authorRepository.findAll());
       return "addBook";
@@ -89,7 +86,7 @@ public class BookController {
     } else {
       book.setAuthors(new ArrayList<>());
     }
-    
+
     bookRepository.save(book);
     logger.info("New book added: {} ID: {} by user: {}", book.getTitle(), book.getId(), Utilities.sanitizeLogInput(authentication.getName()));
     return "redirect:/books";
@@ -98,14 +95,14 @@ public class BookController {
   // Get a Single Book
   @PreAuthorize("isAuthenticated() && hasRole('ADMIN')")
   @GetMapping("/books/{id}")
-  public String getBookById(@PathVariable(value = "id") Long bookId, Model model, 
-                           Authentication authentication) throws BookNotFoundException {
+  public String getBookById(@PathVariable(value = "id") @Positive Long bookId, Model model,
+                            Authentication authentication) throws BookNotFoundException {
     // Secure authorization check with IDOR protection
     Book book = authorizationService.getBookWithAuthorization(bookId, authentication);
     authorizationService.logResourceAccess("Book", bookId, "READ", authentication, true);
-    
+
     BookUpdateDto bookUpdateDto = BookUpdateDto.fromEntity(book);
-    
+
     model.addAttribute("bookUpdate", bookUpdateDto);
     model.addAttribute("authorsOfBook", book.getAuthors());
     model.addAttribute("listAuthors", authorRepository.findAll());
@@ -165,14 +162,14 @@ public class BookController {
   @PreAuthorize("isAuthenticated() && hasRole('ADMIN')")
   @DeleteMapping("/books/delete/{id}")
   @Transactional(rollbackFor = Exception.class)
-  public String deleteBook(@PathVariable(value = "id") Long bookId,
+  public String deleteBook(@PathVariable(value = "id") @Positive Long bookId,
                            Authentication authentication) throws BookNotFoundException {
     // Secure authorization check with IDOR protection
     authorizationService.validateBookDeletionPermission(bookId, authentication);
-    
+
     // Secure retrieval after authorization
     Book book = authorizationService.getBookWithAuthorization(bookId, authentication);
-    
+
     userRepository.findAll().forEach(user -> {
       boolean removed = user.getCart().keySet().removeIf(deletedBook -> deletedBook.getId().equals(bookId));
       if (removed) {

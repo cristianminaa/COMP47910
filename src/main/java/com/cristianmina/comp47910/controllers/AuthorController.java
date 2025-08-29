@@ -11,6 +11,7 @@ import com.cristianmina.comp47910.security.AuthorizationService;
 import com.cristianmina.comp47910.security.Utilities;
 import com.cristianmina.comp47910.service.DtoConversionService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -95,7 +96,7 @@ public class AuthorController {
   // Get a Single Author
   @PreAuthorize("isAuthenticated()")
   @GetMapping("/authors/{id}")
-  public String getAuthorById(@PathVariable(value = "id") Long authorId,
+  public String getAuthorById(@PathVariable(value = "id") @Positive Long authorId,
                               Model model,
                               Authentication authentication) throws AuthorNotFoundException {
     // Secure authorization check with IDOR protection
@@ -161,7 +162,7 @@ public class AuthorController {
   @PreAuthorize("isAuthenticated()")
   @DeleteMapping("/authors/{id}")
   @Transactional(rollbackFor = Exception.class)
-  public String deleteAuthor(@PathVariable(value = "id") Long authorId,
+  public String deleteAuthor(@PathVariable(value = "id") @Positive Long authorId,
                              Authentication authentication) throws AuthorNotFoundException {
     // Secure authorization check with business logic validation
     authorizationService.validateAuthorDeletionPermission(authorId, authentication);

@@ -7,6 +7,7 @@ import com.cristianmina.comp47910.repository.BookRepository;
 import com.cristianmina.comp47910.repository.UserRepository;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -48,13 +49,10 @@ public class CartController {
   @PreAuthorize("hasRole('USER')")
   @Transactional(isolation = Isolation.SERIALIZABLE)
   @PostMapping("/cart/{id}")
-  public String addToCart(@PathVariable(value = "id") Long bookId,
+  public String addToCart(@PathVariable(value = "id") @Positive Long bookId,
                           @RequestParam(defaultValue = "1") @Min(1) @Max(99) int quantity,
                           Authentication authentication) throws BookNotFoundException {
-    // Validation
-    if (bookId <= 0) {
-      throw new IllegalArgumentException("Invalid book ID");
-    }
+    // Additional validation handled by @Positive annotation
 
     User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
     Book book = bookRepository.findById(bookId).orElseThrow(() -> new BookNotFoundException(bookId));
@@ -87,7 +85,7 @@ public class CartController {
   // Update Book Quantity in Cart
   @PreAuthorize("hasRole('USER')")
   @PutMapping("/cart/update/{id}")
-  public String updateQuantityInCart(@PathVariable(value = "id") Long bookId,
+  public String updateQuantityInCart(@PathVariable(value = "id") @Positive Long bookId,
                                      @RequestParam(defaultValue = "1") int quantity,
                                      Authentication authentication) throws BookNotFoundException {
     User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
@@ -101,7 +99,7 @@ public class CartController {
   // Remove Book from Cart
   @PreAuthorize("hasRole('USER')")
   @DeleteMapping("/cart/delete/{id}")
-  public String deleteFromCart(@PathVariable(value = "id") Long bookId,
+  public String deleteFromCart(@PathVariable(value = "id") @Positive Long bookId,
                                Authentication authentication) throws BookNotFoundException {
     User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
     Book book = bookRepository.findById(bookId).orElseThrow(() -> new BookNotFoundException(bookId));
