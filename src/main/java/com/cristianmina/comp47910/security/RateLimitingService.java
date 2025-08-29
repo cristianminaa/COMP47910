@@ -1,13 +1,13 @@
 package com.cristianmina.comp47910.security;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.HandlerInterceptor;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -47,6 +47,7 @@ import java.util.concurrent.TimeUnit;
 public class RateLimitingService implements HandlerInterceptor {
 
   private static final Logger logger = LoggerFactory.getLogger(RateLimitingService.class);
+  private static final int EXTENDED_LOCKOUT_HOURS = 24;
 
   @Autowired
   private SecurityAuditService securityAuditService;
@@ -72,7 +73,7 @@ public class RateLimitingService implements HandlerInterceptor {
   /**
    * Records a failed authentication attempt
    */
-  public void recordFailedAttempt(String key) {
+  public void recordFailedAttempt(String key, String clientIP) {
     LocalDateTime now = LocalDateTime.now();
     AttemptRecord record = attemptRecords.computeIfAbsent(key, k -> new AttemptRecord());
 
@@ -95,8 +96,16 @@ public class RateLimitingService implements HandlerInterceptor {
 
       // Permanent lockout after 10 failed attempts
       if (record.attemptCount >= 10) {
-        logger.error("CRITICAL_SECURITY_ALERT: Permanent lockout applied for key: {} after {} attempts. Manual intervention required.",
-                Utilities.sanitizeLogInput(key), record.attemptCount);
+        LocalDateTime lockoutEndExtended = now.plusHours(EXTENDED_LOCKOUT_HOURS);
+        lockoutUntil.put(key, lockoutEndExtended);
+
+        // Send alert to security team
+        securityAuditService.logSecurityAlert(
+                "EXTENDED_LOCKOUT",
+                "HIGH",
+                "Account locked for 24 hours after 10 failed attempts",
+                key, clientIP, "Possible brute force attack"
+        );
       }
     } else {
       logger.warn("Failed authentication attempt for key: {} (attempt {}/{})",
@@ -194,20 +203,20 @@ public class RateLimitingService implements HandlerInterceptor {
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
     String clientIP = request.getRemoteAddr();
     String requestURI = request.getRequestURI();
-    
+
     // Apply rate limiting to sensitive endpoints only
-    if (requestURI.equals("/") || requestURI.equals("/register") || 
-        requestURI.equals("/account") || requestURI.startsWith("/api/")) {
-      
+    if (requestURI.equals("/") || requestURI.equals("/register") ||
+            requestURI.equals("/account") || requestURI.startsWith("/api/")) {
+
       if (isBlocked(clientIP)) {
-        logger.warn("SECURITY_ALERT: Blocked request from rate-limited IP: {} to endpoint: {}", 
-                   Utilities.sanitizeLogInput(clientIP), requestURI);
+        logger.warn("SECURITY_ALERT: Blocked request from rate-limited IP: {} to endpoint: {}",
+                Utilities.sanitizeLogInput(clientIP), requestURI);
         response.setStatus(429); // HTTP 429 Too Many Requests
         response.getWriter().write("Too many requests. Please try again later.");
         return false;
       }
     }
-    
+
     return true;
   }
 

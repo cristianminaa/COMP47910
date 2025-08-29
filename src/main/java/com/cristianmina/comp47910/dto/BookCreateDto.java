@@ -11,7 +11,7 @@ public class BookCreateDto {
 
   @NotBlank(message = "Book title is required")
   @Size(max = 100, message = "Book title cannot exceed 100 characters")
-  @Pattern(regexp = "^[a-zA-Z0-9\\s\\-.,!?'\"]+$", message = "Book title contains invalid characters")
+  @Pattern(regexp = "^[a-zA-Z0-9\\s\\-.,!?]+$", message = "Book title contains invalid characters")
   private String title;
 
   @NotNull(message = "Price is required")

@@ -78,8 +78,8 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
       Optional<User> userOpt = userRepository.findByUsername(username);
       if (userOpt.isEmpty()) {
         // Record failed attempt before throwing exception
-        rateLimitingService.recordFailedAttempt(rateKey);
-        rateLimitingService.recordFailedAttempt(clientIP);
+        rateLimitingService.recordFailedAttempt(rateKey, clientIP);
+        
         logger.warn("SECURITY: Authentication failed for unknown user {} from IP {}",
                 Utilities.sanitizeLogInput(username), clientIP);
         throw new BadCredentialsException("Invalid username or password");
@@ -90,16 +90,16 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
       // Validate 2FA if enabled for this user
       if (user.isUsing2FA()) {
         if (verificationCode == null || verificationCode.trim().isEmpty()) {
-          rateLimitingService.recordFailedAttempt(rateKey);
-          rateLimitingService.recordFailedAttempt(clientIP);
+          rateLimitingService.recordFailedAttempt(rateKey, clientIP);
+
           logger.warn("SECURITY: 2FA code missing for user {} from IP {}",
                   Utilities.sanitizeLogInput(username), clientIP);
           throw new BadCredentialsException("Two-factor authentication code required");
         }
 
         if (!isValidLong(verificationCode)) {
-          rateLimitingService.recordFailedAttempt(rateKey);
-          rateLimitingService.recordFailedAttempt(clientIP);
+          rateLimitingService.recordFailedAttempt(rateKey, clientIP);
+
           logger.warn("SECURITY: Invalid 2FA code format for user {} from IP {}",
                   Utilities.sanitizeLogInput(username), clientIP);
           throw new BadCredentialsException("Invalid verification code format");
@@ -107,8 +107,8 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 
         Totp totp = new Totp(user.getSecret());
         if (!totp.verify(verificationCode)) {
-          rateLimitingService.recordFailedAttempt(rateKey);
-          rateLimitingService.recordFailedAttempt(clientIP);
+          rateLimitingService.recordFailedAttempt(rateKey, clientIP);
+
           logger.warn("SECURITY: 2FA verification failed for user {} from IP {}",
                   Utilities.sanitizeLogInput(username), clientIP);
           throw new BadCredentialsException("Invalid verification code");
@@ -130,8 +130,7 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 
     } catch (AuthenticationException e) {
       // Record failed attempt for any authentication failure
-      rateLimitingService.recordFailedAttempt(rateKey);
-      rateLimitingService.recordFailedAttempt(clientIP);
+      rateLimitingService.recordFailedAttempt(rateKey, clientIP);
 
       logger.warn("SECURITY: Authentication failed for user {} from IP {} - {}",
               Utilities.sanitizeLogInput(username), clientIP, e.getMessage());
