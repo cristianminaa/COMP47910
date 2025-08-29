@@ -88,7 +88,7 @@ public class BookController {
     }
 
     bookRepository.save(book);
-    logger.info("New book added: {} ID: {} by user: {}", book.getTitle(), book.getId(), Utilities.sanitizeLogInput(authentication.getName()));
+    logger.info("New book added with ID: {} by user: {}", book.getId(), Utilities.sanitizeLogInput(authentication.getName()));
     return "redirect:/books";
   }
 

@@ -88,7 +88,7 @@ public class AuthorController {
       author.setBooks(new ArrayList<>());
     }
 
-    logger.info("New author added: {} by user: {}", author.getFullName(), Utilities.sanitizeLogInput(authentication.getName()));
+    logger.info("New author added: {} by user: {}", author.getId(), Utilities.sanitizeLogInput(authentication.getName()));
     authorRepository.save(author);
     return "redirect:/authors";
   }
